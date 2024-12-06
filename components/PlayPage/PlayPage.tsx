@@ -17,7 +17,7 @@ export const PlayPage = () => {
 			<div className="flex items-center justify-between p-4 border-b border-gray-800">
 				<div className="flex items-center gap-2">
 					<Avatar>
-						<AvatarImage src="/cat.png" />
+						<AvatarImage src="/babycat.png" />
 						<AvatarFallback>HK</AvatarFallback>
 					</Avatar>
 					<div>
@@ -63,7 +63,7 @@ export const PlayPage = () => {
 							<div className="absolute inset-0 rounded-full shadow-inner" />
 							{/* Hamster image */}
 							<img
-								src="/cat.png"
+								src="/babycat.png"
 								alt="cat"
 								className="relative w-full h-full object-contain group-hover:scale-105 transition-transform duration-200"
 							/>
