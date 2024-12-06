@@ -1,5 +1,18 @@
 access(all) contract KittyKombatLite {
 
+    /// Contract Paths
+    access(all) let PlayerStoragePath: StoragePath
+    access(all) let PlayerPublicPath: PublicPath
+
+    /// Contract Events
+    access(all) event CoinsAdded(player: Address, amount: UFix64)
+    access(all) event UpgradePurchased(player: Address, upgradeName: String, cost: UFix64)
+    access(all) event PassiveCoinsClaimed(player: Address, amount: UFix64)
+    
+    /// Contract Fields
+    access(all) var passiveInterval: UFix64
+    access(self) var availableUpgrades: {String: Upgrade}
+
     access(all) struct Upgrade {
         access(all) let name: String
         access(all) let description: String
@@ -14,11 +27,13 @@ access(all) contract KittyKombatLite {
         }
     }
 
-    
-    access(all) var passiveInterval: UFix64
-    access(all) var availableUpgrades: {String: Upgrade}
+    access(all) resource interface PlayerPublic {
+        access(all) var coins: UFix64
+        access(all) var upgrades: {String: Int}
+        access(all) var lastPassiveClaim: UFix64
+    }
 
-    access(all) resource Player {
+    access(all) resource Player: PlayerPublic {
         access(all) var coins: UFix64
         access(all) var upgrades: {String: Int}
         access(all) var lastPassiveClaim: UFix64
@@ -28,21 +43,67 @@ access(all) contract KittyKombatLite {
                 amount > 0.0: "Amount must be greater than zero"
             }
             self.coins = self.coins + amount
+            emit CoinsAdded(player: self.owner!.address, amount: amount)
         }
 
         access(all) fun purchaseUpgrade(upgradeName: String) {
             pre {
-                let upgrade = KittyKombatLite.availableUpgrades[upgradeName]: "Upgrade does not exist"
-                self.coins >= upgrade.cost: "Not enough coins to buy upgrade"
+                KittyKombatLite.availableUpgrades[upgradeName] != nil: "Upgrade does not exist"
+                self.coins >= KittyKombatLite.availableUpgrades[upgradeName]!.cost: "Not enough coins to buy upgrade"
             }
-            let upgrade = KittyKombatLite.availableUpgrades[upgradeName]
+            let upgrade = KittyKombatLite.availableUpgrades[upgradeName]!
             self.coins = self.coins - upgrade.cost
-            self.upgrades[upgradeName] = self.upgrades[upgradeName] + 1
+            if(self.upgrades[upgradeName] == nil) {
+                self.upgrades[upgradeName] = 1
+            } else {
+                self.upgrades[upgradeName] = self.upgrades[upgradeName]! + 1
+            }
+            emit UpgradePurchased(player: self.owner!.address, upgradeName: upgradeName, cost: upgrade.cost)
+        }
+
+        // Claim passive coins based on upgrades
+        access(all) fun claimPassiveCoins() {
+            pre {
+                getCurrentBlock().timestamp >= self.lastPassiveClaim + KittyKombatLite.passiveInterval: "Not enough time has passed"
+            }
+
+            var totalMultiplier = 1.0
+
+            for upgrade in self.upgrades.keys {
+                let count = self.upgrades[upgrade]!
+                let upgradeMultiplier = KittyKombatLite.availableUpgrades[upgrade]!.multiplier
+                totalMultiplier = totalMultiplier + (UFix64(count) * (upgradeMultiplier - 1.0))
+            }
+
+            let passiveEarnings: UFix64 = 10.0 * totalMultiplier
+
+            self.addCoins(amount: passiveEarnings)
+
+            self.lastPassiveClaim = getCurrentBlock().timestamp
+
+            emit PassiveCoinsClaimed(player: self.owner!.address, amount: passiveEarnings)
+        }
+
+        init() {
+            self.coins = 0.0
+            self.upgrades = {}
+            self.lastPassiveClaim = 0.0
         }
     }
 
+    access(all) fun createPlayer(): @Player {
+        return <-create Player()
+    }
+
     init() {
+
+        self.PlayerStoragePath = /storage/kittyKombatLitePlayer
+        self.PlayerPublicPath = /public/kittyKombatLitePlayer
+
         self.passiveInterval = 3600.0
-        self.availableUpgrades = {}
+        self.availableUpgrades = {
+            "Speed Booster": Upgrade(name: "Speed Booster", description: "Increase passive earnings by 10%", cost: 100.0, multiplier: 1.1),
+            "Mega Tapper": Upgrade(name: "Mega Tapper", description: "Increase passive earnings by 100%", cost: 2000.0, multiplier: 2.0)
+        }
     }
 }
