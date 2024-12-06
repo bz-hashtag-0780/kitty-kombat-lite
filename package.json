@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@twa-dev/sdk": "^8.0.1",
     "lucide-react": "^0.468.0",
     "next": "15.0.4",
     "react": "^19.0.0",
