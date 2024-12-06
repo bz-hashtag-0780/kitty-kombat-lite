@@ -9,11 +9,16 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@magic-ext/flow": "^23.18.1",
+    "@magic-ext/oauth": "^22.18.1",
+    "@onflow/fcl": "^1.13.1",
     "@twa-dev/sdk": "^8.0.1",
     "lucide-react": "^0.468.0",
+    "magic-sdk": "^28.19.1",
     "next": "15.0.4",
     "react": "^19.0.0",
-    "react-dom": "^19.0.0"
+    "react-dom": "^19.0.0",
+    "react-toastify": "^10.0.6"
   },
   "devDependencies": {
     "@types/node": "^20",

@@ -1,6 +1,13 @@
 'use client';
 
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import React, {
+	createContext,
+	useContext,
+	useEffect,
+	useState,
+	Dispatch,
+	SetStateAction,
+} from 'react';
 import WebApp from '@twa-dev/sdk';
 
 type AuthContextType = {
@@ -8,6 +15,8 @@ type AuthContextType = {
 	username: string | null;
 	windowHeight: number;
 	photo_url: string | null;
+	token: string;
+	setToken: Dispatch<SetStateAction<string>>;
 };
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -21,6 +30,7 @@ export const AuthContextProvider = ({
 	const [userID, setUserID] = useState<number | null>(null);
 	const [username, setUsername] = useState<string | null>(null);
 	const [photo_url, setPhotoUrl] = useState<string | null>(null);
+	const [token, setToken] = useState('');
 
 	useEffect(() => {
 		// Ensure this code only runs on the client side
@@ -35,6 +45,7 @@ export const AuthContextProvider = ({
 			setUsername(user?.username || null);
 			setPhotoUrl(user?.photo_url || null);
 		}
+		setToken(localStorage.getItem('token') ?? '');
 	}, []);
 
 	const contextValue = {
@@ -42,6 +53,8 @@ export const AuthContextProvider = ({
 		username,
 		windowHeight,
 		photo_url,
+		token,
+		setToken,
 	};
 
 	return (
