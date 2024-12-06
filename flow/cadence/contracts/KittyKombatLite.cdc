@@ -10,7 +10,6 @@ access(all) contract KittyKombatLite {
     access(all) event PassiveCoinsClaimed(player: Address, amount: UFix64)
     
     /// Contract Fields
-    access(all) var passiveInterval: UFix64
     access(self) var availableUpgrades: {String: Upgrade}
 
     access(all) struct Upgrade {
@@ -30,19 +29,24 @@ access(all) contract KittyKombatLite {
     access(all) resource interface PlayerPublic {
         access(all) var coins: UFix64
         access(all) var upgrades: {String: Int}
+        access(all) var lastManualAdd: UFix64
         access(all) var lastPassiveClaim: UFix64
     }
 
     access(all) resource Player: PlayerPublic {
         access(all) var coins: UFix64
         access(all) var upgrades: {String: Int}
+        access(all) var lastManualAdd: UFix64
         access(all) var lastPassiveClaim: UFix64
 
         access(all) fun addCoins(amount: UFix64) {
             pre {
                 amount > 0.0: "Amount must be greater than zero"
+                amount <= 50.0: "Amount exceeds maximum allowed per transaction"
+                getCurrentBlock().timestamp >= self.lastManualAdd + 1.0: "Not enough time has passed"
             }
             self.coins = self.coins + amount
+            self.lastManualAdd = getCurrentBlock().timestamp
             emit CoinsAdded(player: self.owner!.address, amount: amount)
         }
 
@@ -64,7 +68,7 @@ access(all) contract KittyKombatLite {
         // Claim passive coins based on upgrades
         access(all) fun claimPassiveCoins() {
             pre {
-                getCurrentBlock().timestamp >= self.lastPassiveClaim + KittyKombatLite.passiveInterval: "Not enough time has passed"
+                getCurrentBlock().timestamp >= self.lastPassiveClaim + 3600.0: "Not enough time has passed"
             }
 
             var totalMultiplier = 1.0
@@ -76,17 +80,15 @@ access(all) contract KittyKombatLite {
             }
 
             let passiveEarnings: UFix64 = 10.0 * totalMultiplier
-
-            self.addCoins(amount: passiveEarnings)
-
+            self.coins = self.coins + passiveEarnings
             self.lastPassiveClaim = getCurrentBlock().timestamp
-
             emit PassiveCoinsClaimed(player: self.owner!.address, amount: passiveEarnings)
         }
 
         init() {
             self.coins = 0.0
             self.upgrades = {}
+            self.lastManualAdd = 0.0
             self.lastPassiveClaim = 0.0
         }
     }
@@ -96,11 +98,9 @@ access(all) contract KittyKombatLite {
     }
 
     init() {
-
         self.PlayerStoragePath = /storage/kittyKombatLitePlayer
         self.PlayerPublicPath = /public/kittyKombatLitePlayer
 
-        self.passiveInterval = 3600.0
         self.availableUpgrades = {
             "Speed Booster": Upgrade(name: "Speed Booster", description: "Increase passive earnings by 10%", cost: 100.0, multiplier: 1.1),
             "Mega Tapper": Upgrade(name: "Mega Tapper", description: "Increase passive earnings by 100%", cost: 2000.0, multiplier: 2.0)
