@@ -11,7 +11,7 @@ import { useAuth } from '@/context/AuthContext';
 export const PlayPage = () => {
 	const [count, setCount] = useState(0);
 	const [profitPerHour] = useState(15);
-	const { username } = useAuth();
+	const { username, photo_url } = useAuth();
 
 	return (
 		<div className="flex flex-col h-screen bg-gray-950">
@@ -19,7 +19,12 @@ export const PlayPage = () => {
 			<div className="flex items-center justify-between p-4 border-b border-gray-800">
 				<div className="flex items-center gap-2">
 					<Avatar>
-						<AvatarImage src="/babycat.png" />
+						{photo_url ? (
+							<AvatarImage src={photo_url} />
+						) : (
+							<AvatarImage src="/babycat.png" />
+						)}
+
 						<AvatarFallback>HK</AvatarFallback>
 					</Avatar>
 					<div>

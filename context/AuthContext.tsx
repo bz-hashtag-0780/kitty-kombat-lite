@@ -7,6 +7,7 @@ type AuthContextType = {
 	userID: number | null;
 	username: string | null;
 	windowHeight: number;
+	photo_url: string | null;
 };
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -19,6 +20,7 @@ export const AuthContextProvider = ({
 	const [windowHeight, setWindowHeight] = useState<number>(0);
 	const [userID, setUserID] = useState<number | null>(null);
 	const [username, setUsername] = useState<string | null>(null);
+	const [photo_url, setPhotoUrl] = useState<string | null>(null);
 
 	useEffect(() => {
 		// Ensure this code only runs on the client side
@@ -31,6 +33,7 @@ export const AuthContextProvider = ({
 			const user = WebApp.initDataUnsafe.user;
 			setUserID(user?.id || null);
 			setUsername(user?.username || null);
+			setPhotoUrl(user?.photo_url || null);
 		}
 	}, []);
 
@@ -38,6 +41,7 @@ export const AuthContextProvider = ({
 		userID,
 		username,
 		windowHeight,
+		photo_url,
 	};
 
 	return (
