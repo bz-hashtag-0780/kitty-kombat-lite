@@ -38,8 +38,16 @@ export const PlayPage = () => {
 					</div>
 				</div>
 				<div className="flex items-center gap-2">
-					<Coins className="w-4 h-4 text-yellow-500" />
-					<span className="text-white">{count}</span>
+					<div>
+						<div className="flex items-center gap-1">
+							<Coins className="w-3 h-3 text-yellow-500" />
+							<span className="text-white text-sm">{count}</span>
+						</div>
+						<div className="flex items-center gap-1">
+							<Coins className="w-3 h-3 text-yellow-500" />
+							<span className="text-white text-sm">{count}</span>
+						</div>
+					</div>
 				</div>
 			</div>
 
