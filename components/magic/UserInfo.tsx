@@ -9,20 +9,31 @@ import { convertAccountBalance } from '@/utils/flowUtils';
 
 export const UserInfo = () => {
 	const [balance, setBalance] = useState('...');
-	const [publicAddress, setPublicAddress] = useState(
-		localStorage.getItem('user')
-	);
+	const [publicAddress, setPublicAddress] = useState<string | null>(null); // Initialize with null
 	const { magic } = useMagic();
 
 	useEffect(() => {
+		// Check if we're in the client-side environment
+		if (typeof window !== 'undefined') {
+			// Get the public address from localStorage
+			const savedAddress = localStorage.getItem('user');
+			setPublicAddress(savedAddress);
+		}
+
 		const checkLoginandGetBalance = async () => {
 			const isLoggedIn = await magic?.user.isLoggedIn();
 			if (isLoggedIn) {
 				try {
 					const metadata = await magic?.user.getInfo();
 					if (metadata) {
-						localStorage.setItem('user', metadata.publicAddress!);
-						setPublicAddress(metadata.publicAddress!);
+						if (typeof window !== 'undefined') {
+							// Store the address in localStorage only on the client side
+							localStorage.setItem(
+								'user',
+								metadata.publicAddress!
+							);
+							setPublicAddress(metadata.publicAddress!);
+						}
 					}
 					getBalance();
 				} catch (e) {
@@ -30,24 +41,25 @@ export const UserInfo = () => {
 				}
 			}
 		};
+
 		setTimeout(() => checkLoginandGetBalance(), 5000);
 	}, [magic]);
 
 	const getBalance = useCallback(async () => {
 		if (publicAddress) {
-			const account = await fcl.account(publicAddress);
-			setBalance(convertAccountBalance(account.balance));
+			try {
+				const account = await fcl.account(publicAddress);
+				setBalance(convertAccountBalance(account.balance));
+			} catch (e) {
+				console.log('Error fetching balance:', e);
+			}
 		}
 	}, [magic, publicAddress]);
 
 	return (
 		<div>
 			<h1>User Info</h1>
-			<div>
-				{publicAddress?.length == 0
-					? 'Fetching address..'
-					: publicAddress}
-			</div>
+			<div>{!publicAddress ? 'Fetching address...' : publicAddress}</div>
 			<div className="code">{balance} FLOW</div>
 		</div>
 	);

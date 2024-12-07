@@ -20,7 +20,8 @@ const SendTransaction = () => {
 	const [toAddressError, setToAddressError] = useState(false);
 	const [amountError, setAmountError] = useState(false);
 	const [transactionLoading, setTransactionLoading] = useState(false);
-	const publicAddress = localStorage.getItem('user');
+	const publicAddress =
+		typeof window !== 'undefined' ? localStorage.getItem('user') : null;
 
 	useEffect(() => {
 		setDisabled(!toAddress || !amount);
