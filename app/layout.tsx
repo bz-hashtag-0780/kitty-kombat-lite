@@ -1,7 +1,9 @@
 // app/layout.tsx
 'use client';
+
 import './globals.css';
 import { AuthContextProvider } from '@/context/AuthContext';
+import MagicProvider from '@/context/MagicContext';
 
 export default function RootLayout({
 	children,
@@ -11,7 +13,9 @@ export default function RootLayout({
 	return (
 		<html lang="en">
 			<body suppressHydrationWarning={true}>
-				<AuthContextProvider>{children}</AuthContextProvider>
+				<MagicProvider>
+					<AuthContextProvider>{children}</AuthContextProvider>
+				</MagicProvider>
 			</body>
 		</html>
 	);
