@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @next/next/no-img-element */
 // eslint-disable-next-line @next/next/no-img-element, jsx-a11y/alt-text
@@ -11,15 +12,16 @@ import { useAuth } from '@/context/AuthContext';
 import { useMagic } from '@/context/MagicContext';
 import { LoginButton } from '@/components/magic/LoginButton';
 import { LoginModal } from '@/components/magic/LoginModal';
+import * as fcl from '@onflow/fcl';
 
 export const PlayPage = () => {
 	const [count, setCount] = useState(0);
 	const [profitPerHour] = useState(15);
 	const [publicAddress, setPublicAddress] = useState<string | null>(null);
+	const [flowBalance, setFlowBalance] = useState(0);
 	const [showLoginModal, setShowLoginModal] = useState(false);
 	const { username, photo_url } = useAuth();
 	const { magic } = useMagic();
-	const [isLoggedIn, setIsLoggedIn] = useState(false);
 
 	useEffect(() => {
 		// Check if we're in the client-side environment
@@ -27,6 +29,10 @@ export const PlayPage = () => {
 			// Get the public address from localStorage
 			const savedAddress = localStorage.getItem('user');
 			setPublicAddress(savedAddress);
+
+			if (savedAddress) {
+				fetchFlowBalance(savedAddress); // Fetch balance if address exists
+			}
 		}
 
 		const checkLogin = async () => {
@@ -44,7 +50,6 @@ export const PlayPage = () => {
 							setPublicAddress(metadata.publicAddress!);
 						}
 					}
-					setIsLoggedIn(true);
 				} catch (e) {
 					console.log('error in fetching address: ' + e);
 				}
@@ -52,6 +57,29 @@ export const PlayPage = () => {
 		};
 		setTimeout(() => checkLogin(), 5000);
 	}, [magic]);
+
+	const fetchFlowBalance = async (address: string) => {
+		try {
+			const balance = await fcl.query({
+				cadence: `
+			  	import FungibleToken from 0xf233dcee88fe0abe
+				import FlowToken from 0x1654653399040a61
+
+				access(all) fun main(account: Address): UFix64 {
+					let vaultRef = getAccount(account)
+						.capabilities.borrow<&FlowToken.Vault>(/public/flowTokenBalance)
+						?? panic("Could not borrow a balance reference to the FlowToken Vault in account")
+
+					return vaultRef.balance
+				}
+			`,
+				args: (arg: any, t: any) => [arg(address, t.Address)],
+			});
+			setFlowBalance(parseFloat(balance));
+		} catch (error) {
+			console.error('Failed to fetch Flow balance:', error);
+		}
+	};
 
 	return (
 		<div className="flex flex-col h-screen bg-gray-950">
@@ -88,12 +116,43 @@ export const PlayPage = () => {
 									{count}
 								</span>
 							</div>
-							<div className="flex items-center gap-1">
-								<Coins className="w-3 h-3 text-yellow-500" />
-								<span className="text-white text-sm">
-									{count}
-								</span>
-							</div>
+							{flowBalance && (
+								<div className="flex items-center gap-1">
+									<svg
+										xmlns="http://www.w3.org/2000/svg"
+										viewBox="0 0 176.99 176.15"
+										className="w-4 h-4 -ml-1"
+									>
+										<circle
+											cx="88.49"
+											cy="88.07"
+											r="87.19"
+											style={{ fill: '#12E987' }}
+										></circle>
+										<path
+											d="M59.09 110.21a9.52 9.52 0 1 0 19 0v-9.53h-9.48a9.53 9.53 0 0 0-9.52 9.53"
+											fill="none"
+										></path>
+										<path
+											d="M103.53 75.29h25.39v25.39h-25.39zM78.13 110.21a9.52 9.52 0 1 1-9.52-9.53h9.52V75.29h-9.52a34.92 34.92 0 1 0 34.91 34.92v-9.53H78.13Z"
+											fill="#fff"
+										></path>
+										<path
+											d="M113.05 62.6h28.56V37.2h-28.56a35 35 0 0 0-34.92 34.92v3.17h25.39v-3.17a9.53 9.53 0 0 1 9.53-9.52"
+											fill="#fff"
+										></path>
+										<path
+											d="M78.13 100.68H103.53V75.29H78.13z"
+											style={{
+												fill: '#12E987',
+											}}
+										></path>
+									</svg>
+									<span className="text-white text-sm">
+										{flowBalance.toFixed(2)}
+									</span>
+								</div>
+							)}
 						</div>
 					) : (
 						<LoginButton onClick={() => setShowLoginModal(true)} />
