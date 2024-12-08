@@ -97,6 +97,14 @@ access(all) contract KittyKombatLite {
         return <-create Player()
     }
 
+    access(all) fun getAvailableUpgrades(): {String: Upgrade} {
+        return KittyKombatLite.availableUpgrades
+    }
+
+    access(all) fun getAvailableUpgrade(upgradeName: String): Upgrade? {
+        return KittyKombatLite.availableUpgrades[upgradeName]
+    }
+
     init() {
         self.PlayerStoragePath = /storage/kittyKombatLitePlayer
         self.PlayerPublicPath = /public/kittyKombatLitePlayer
