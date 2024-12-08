@@ -1,7 +1,12 @@
 'use client';
 
 import { useState } from 'react';
-import { Button } from '@/components/ui/button';
+import { useMagic } from '@/context/MagicContext';
+import { useAuth } from '@/context/AuthContext';
+import showToast from '@/utils/showToast';
+import { saveToken } from '@/utils/common';
+import { RPCError, RPCErrorCode } from 'magic-sdk';
+import { LoginModalButton } from '@/components/magic/ui/LoginModalButton';
 import { X } from 'lucide-react';
 import {
 	Dialog,
@@ -12,6 +17,7 @@ import {
 	DialogClose,
 } from '@/components/magic/ui/Dialog';
 import { Input } from '@/components/magic/ui/Input';
+import Spinner from '@/components/magic/ui/Spinner';
 
 interface LoginModalProps {
 	open: boolean;
@@ -19,30 +25,53 @@ interface LoginModalProps {
 }
 
 export function LoginModal({ open, onOpenChange }: LoginModalProps) {
+	const { magic } = useMagic();
+	const { token, setToken } = useAuth();
 	const [phoneNumber, setPhoneNumber] = useState('');
-	const [verificationCode, setVerificationCode] = useState('');
-	const [step, setStep] = useState<'phone' | 'code'>('phone');
+	const [isLoginInProgress, setLoginInProgress] = useState(false);
+	const [phoneError, setPhoneError] = useState(false);
 
 	const handlePhoneSubmit = async (e: React.FormEvent) => {
 		e.preventDefault();
-		// Here you would typically send the phone number to your backend
-		// and trigger SMS verification
-		console.log('Phone number submitted:', phoneNumber);
-		setStep('code');
-	};
+		if (!phoneNumber.match(/^\+?\d{10,14}$/)) {
+			setPhoneError(true);
+			return;
+		}
+		setPhoneError(false);
 
-	const handleCodeSubmit = async (e: React.FormEvent) => {
-		e.preventDefault();
 		try {
-			// Simulating login process
-			console.log('Verification code submitted:', verificationCode);
-			// await login(phoneNumber, verificationCode)
-			onOpenChange(false);
-			setStep('phone');
-			setPhoneNumber('');
-			setVerificationCode('');
-		} catch (error) {
-			console.error('Login failed:', error);
+			setLoginInProgress(true);
+			const token = await magic?.auth.loginWithSMS({ phoneNumber });
+			if (token) {
+				saveToken(token, setToken, 'SMS');
+				showToast({ message: 'Login successful!', type: 'success' });
+				setPhoneNumber('');
+				onOpenChange(false);
+			}
+		} catch (e) {
+			console.error('Login error:', e);
+			if (e instanceof RPCError) {
+				switch (e.code) {
+					case RPCErrorCode.MagicLinkFailedVerification:
+					case RPCErrorCode.MagicLinkExpired:
+					case RPCErrorCode.MagicLinkRateLimited:
+					case RPCErrorCode.UserAlreadyLoggedIn:
+						showToast({ message: e.message, type: 'error' });
+						break;
+					default:
+						showToast({
+							message: 'Something went wrong. Please try again.',
+							type: 'error',
+						});
+				}
+			} else {
+				showToast({
+					message: 'Unexpected error. Please try again.',
+					type: 'error',
+				});
+			}
+		} finally {
+			setLoginInProgress(false);
 		}
 	};
 
@@ -52,9 +81,7 @@ export function LoginModal({ open, onOpenChange }: LoginModalProps) {
 				<DialogHeader>
 					<DialogTitle>Login to Save Progress</DialogTitle>
 					<DialogDescription>
-						{step === 'phone'
-							? 'Enter your phone number to receive a verification code.'
-							: 'Enter the verification code sent to your phone.'}
+						Enter your phone number to receive a login link via SMS.
 					</DialogDescription>
 				</DialogHeader>
 				<DialogClose className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-accent data-[state=open]:text-muted-foreground">
@@ -62,35 +89,34 @@ export function LoginModal({ open, onOpenChange }: LoginModalProps) {
 					<span className="sr-only">Close</span>
 				</DialogClose>
 
-				{step === 'phone' ? (
-					<form onSubmit={handlePhoneSubmit} className="space-y-4">
-						<Input
-							type="tel"
-							placeholder="Enter phone number"
-							value={phoneNumber}
-							onChange={(e) => setPhoneNumber(e.target.value)}
-							required
-						/>
-						<Button type="submit" className="w-full">
-							Send Code
-						</Button>
-					</form>
-				) : (
-					<form onSubmit={handleCodeSubmit} className="space-y-4">
-						<Input
-							type="text"
-							placeholder="Enter verification code"
-							value={verificationCode}
-							onChange={(e) =>
-								setVerificationCode(e.target.value)
-							}
-							required
-						/>
-						<Button type="submit" className="w-full">
-							Verify
-						</Button>
-					</form>
-				)}
+				<form onSubmit={handlePhoneSubmit} className="space-y-4">
+					<Input
+						type="tel"
+						placeholder={
+							token.length > 0
+								? 'Already logged in'
+								: '+11234567890'
+						}
+						value={phoneNumber}
+						onChange={(e) => {
+							if (phoneError) setPhoneError(false);
+							setPhoneNumber(e.target.value);
+						}}
+						required
+					/>
+					{phoneError && (
+						<span className="self-start text-xs font-semibold text-red-700">
+							Enter a valid phone number
+						</span>
+					)}
+					<LoginModalButton
+						type="submit"
+						className="w-full"
+						disabled={isLoginInProgress || phoneNumber.length === 0}
+					>
+						{isLoginInProgress ? <Spinner /> : 'Send Code'}
+					</LoginModalButton>
+				</form>
 			</DialogContent>
 		</Dialog>
 	);
