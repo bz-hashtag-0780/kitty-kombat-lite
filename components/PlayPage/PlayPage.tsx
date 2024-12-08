@@ -1,17 +1,57 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @next/next/no-img-element */
 // eslint-disable-next-line @next/next/no-img-element, jsx-a11y/alt-text
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { BadgeCheck, Coins, Gamepad2, Gift, ShoppingCart } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
+import { useMagic } from '@/context/MagicContext';
+import { LoginButton } from '@/components/magic/LoginButton';
+import { LoginModal } from '@/components/magic/LoginModal';
 
 export const PlayPage = () => {
 	const [count, setCount] = useState(0);
 	const [profitPerHour] = useState(15);
+	const [publicAddress, setPublicAddress] = useState<string | null>(null);
+	const [showLoginModal, setShowLoginModal] = useState(false);
 	const { username, photo_url } = useAuth();
+	const { magic } = useMagic();
+	const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+	useEffect(() => {
+		// Check if we're in the client-side environment
+		if (typeof window !== 'undefined') {
+			// Get the public address from localStorage
+			const savedAddress = localStorage.getItem('user');
+			setPublicAddress(savedAddress);
+		}
+
+		const checkLogin = async () => {
+			const isLoggedIn = await magic?.user.isLoggedIn();
+			if (isLoggedIn) {
+				try {
+					const metadata = await magic?.user.getInfo();
+					if (metadata) {
+						if (typeof window !== 'undefined') {
+							// Store the address in localStorage only on the client side
+							localStorage.setItem(
+								'user',
+								metadata.publicAddress!
+							);
+							setPublicAddress(metadata.publicAddress!);
+						}
+					}
+					setIsLoggedIn(true);
+				} catch (e) {
+					console.log('error in fetching address: ' + e);
+				}
+			}
+		};
+		setTimeout(() => checkLogin(), 5000);
+	}, [magic]);
 
 	return (
 		<div className="flex flex-col h-screen bg-gray-950">
@@ -34,21 +74,35 @@ export const PlayPage = () => {
 							</span>
 							<BadgeCheck className="w-4 h-4 text-blue-500" />
 						</div>
-						<div className="text-sm text-gray-400">Bronze 1/11</div>
+						<div className="text-sm text-gray-400">
+							{publicAddress}
+						</div>
 					</div>
 				</div>
 				<div className="flex items-center gap-2">
-					<div>
-						<div className="flex items-center gap-1">
-							<Coins className="w-3 h-3 text-yellow-500" />
-							<span className="text-white text-sm">{count}</span>
+					{publicAddress ? (
+						<div>
+							<div className="flex items-center gap-1">
+								<Coins className="w-3 h-3 text-yellow-500" />
+								<span className="text-white text-sm">
+									{count}
+								</span>
+							</div>
+							<div className="flex items-center gap-1">
+								<Coins className="w-3 h-3 text-yellow-500" />
+								<span className="text-white text-sm">
+									{count}
+								</span>
+							</div>
 						</div>
-						<div className="flex items-center gap-1">
-							<Coins className="w-3 h-3 text-yellow-500" />
-							<span className="text-white text-sm">{count}</span>
-						</div>
-					</div>
+					) : (
+						<LoginButton onClick={() => setShowLoginModal(true)} />
+					)}
 				</div>
+				<LoginModal
+					open={showLoginModal}
+					onOpenChange={setShowLoginModal}
+				/>
 			</div>
 
 			{/* Profit per hour */}
