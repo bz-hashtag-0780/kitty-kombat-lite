@@ -26,6 +26,18 @@
 				"type": "file",
 				"location": "emulator-account.pkey"
 			}
+		},
+		"mainnet-account": {
+			"address": "0xf919ee77447b7497",
+			"key": {
+				"type": "file",
+				"location": "mainnet-account.pkey"
+			}
+		}
+	},
+	"deployments": {
+		"mainnet": {
+			"mainnet-account": ["KittyKombatLite"]
 		}
 	}
 }
