@@ -106,8 +106,8 @@ access(all) contract KittyKombatLite {
     }
 
     init() {
-        self.PlayerStoragePath = /storage/kittyKombatLitePlayer
-        self.PlayerPublicPath = /public/kittyKombatLitePlayer
+        self.PlayerStoragePath = /storage/kittyKombatLitePlayer_1
+        self.PlayerPublicPath = /public/kittyKombatLitePlayer_1
 
         self.availableUpgrades = {
             "Speed Booster": Upgrade(name: "Speed Booster", description: "Increase passive earnings by 10%", cost: 100.0, multiplier: 1.1),

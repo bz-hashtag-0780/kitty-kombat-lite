@@ -1,4 +1,18 @@
 {
+	"contracts": {
+		"Counter": {
+			"source": "./flow/cadence/contracts/Counter.cdc",
+			"aliases": {
+				"testing": "0000000000000007"
+			}
+		},
+		"KittyKombatLite": {
+			"source": "./flow/cadence/contracts/KittyKombatLite.cdc",
+			"aliases": {
+				"testing": "0000000000000008"
+			}
+		}
+	},
 	"networks": {
 		"emulator": "127.0.0.1:3569",
 		"mainnet": "access.mainnet.nodes.onflow.org:9000",

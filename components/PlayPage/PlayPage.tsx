@@ -81,7 +81,67 @@ export const PlayPage = () => {
 		}
 	};
 
-	const addCoins = useCallback(async () => {}, []);
+	const addCoins = useCallback(async () => {
+		if (!magic) {
+			return;
+		}
+
+		if (!publicAddress || count <= 0) {
+			console.error('No public address or no points to add.');
+			return;
+		}
+
+		try {
+			// Create and send the transaction
+			const transactionId = await fcl.mutate({
+				cadence: `
+			  import PointsContract from 0xPointsContractAddress
+	  
+			  transaction(points: Int) {
+				prepare(signer: AuthAccount) {
+				  let pointsRef = signer.borrow<&PointsContract.Points>(from: /storage/Points)
+					?? panic("Could not borrow Points reference")
+				  pointsRef.addPoints(points)
+				}
+			  }
+			`,
+				args: (arg: any, t: any) => [arg(count, t.Int)],
+				proposer: magic.flow.authorization,
+				authorizations: [magic.flow.authorization],
+				payer: magic.flow.authorization,
+				limit: 9999,
+			});
+
+			console.log('Transaction submitted with ID:', transactionId);
+
+			// Reset the count after successful transaction
+			setCount(0);
+		} catch (error) {
+			console.error('Failed to send transaction:', error);
+		}
+	}, [magic, count, publicAddress]);
+
+	useEffect(() => {
+		// Threshold trigger: Check if count exceeds a set value
+		const POINT_THRESHOLD = 10;
+
+		if (count >= POINT_THRESHOLD) {
+			addCoins();
+		}
+	}, [count, addCoins]);
+
+	useEffect(() => {
+		// Timer trigger: Call addCoins every 5 minutes
+		const TIMER_INTERVAL = 5 * 60 * 1000; // 5 minutes in milliseconds
+
+		const timer = setInterval(() => {
+			if (count > 0) {
+				addCoins();
+			}
+		}, TIMER_INTERVAL);
+
+		return () => clearInterval(timer); // Cleanup on unmount
+	}, [count, addCoins]);
 
 	return (
 		<div className="flex flex-col h-screen bg-gray-950">
