@@ -28,7 +28,7 @@
 			}
 		},
 		"mainnet-account": {
-			"address": "0xf919ee77447b7497",
+			"address": "0x87535df35d7f64e1",
 			"key": {
 				"type": "file",
 				"location": "mainnet-account.pkey"
