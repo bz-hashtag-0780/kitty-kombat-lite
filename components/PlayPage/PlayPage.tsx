@@ -15,7 +15,7 @@ import { LoginModal } from '@/components/magic/LoginModal';
 import * as fcl from '@onflow/fcl';
 
 export const PlayPage = () => {
-	const [count, setCount] = useState(0);
+	const [count, setCount] = useState(0.0);
 	const [profitPerHour] = useState(15);
 	const [publicAddress, setPublicAddress] = useState<string | null>(null);
 	const [flowBalance, setFlowBalance] = useState(0);
@@ -95,17 +95,25 @@ export const PlayPage = () => {
 			// Create and send the transaction
 			const transactionId = await fcl.mutate({
 				cadence: `
-			  import PointsContract from 0xPointsContractAddress
-	  
-			  transaction(points: Int) {
-				prepare(signer: AuthAccount) {
-				  let pointsRef = signer.borrow<&PointsContract.Points>(from: /storage/Points)
-					?? panic("Could not borrow Points reference")
-				  pointsRef.addPoints(points)
+			  	import KittyKombatLite from 0x87535df35d7f64e1
+
+				transaction(amount: UFix64) {
+					prepare(acct: auth(BorrowValue, IssueStorageCapabilityController, PublishCapability, SaveValue) &Account) {
+						if acct.storage.borrow<&KittyKombatLite.Player>(from: KittyKombatLite.PlayerStoragePath) == nil {
+							acct.storage.save(<- KittyKombatLite.createPlayer(), to: KittyKombatLite.PlayerStoragePath)
+							let playerCap = acct.capabilities.storage.issue<&KittyKombatLite.Player>(KittyKombatLite.PlayerStoragePath)
+							acct.capabilities.publish(playerCap, at: KittyKombatLite.PlayerPublicPath)
+						}
+
+						let playerRef = acct.storage.borrow<&KittyKombatLite.Player>(from: KittyKombatLite.PlayerStoragePath) ?? panic("Could not borrow a reference to the player")
+						
+						playerRef.addCoins(amount: amount)
+					}
+
+					execute {}
 				}
-			  }
 			`,
-				args: (arg: any, t: any) => [arg(count, t.Int)],
+				args: (arg: any, t: any) => [arg(count.toFixed(2), t.UFix64)],
 				proposer: magic.flow.authorization,
 				authorizations: [magic.flow.authorization],
 				payer: magic.flow.authorization,
@@ -113,17 +121,19 @@ export const PlayPage = () => {
 			});
 
 			console.log('Transaction submitted with ID:', transactionId);
+			alert('Transaction submitted');
 
 			// Reset the count after successful transaction
 			setCount(0);
 		} catch (error) {
 			console.error('Failed to send transaction:', error);
+			alert('Transaction failed');
 		}
 	}, [magic, count, publicAddress]);
 
 	useEffect(() => {
 		// Threshold trigger: Check if count exceeds a set value
-		const POINT_THRESHOLD = 10;
+		const POINT_THRESHOLD = 10.0;
 
 		if (count >= POINT_THRESHOLD) {
 			addCoins();
@@ -135,7 +145,7 @@ export const PlayPage = () => {
 		const TIMER_INTERVAL = 5 * 60 * 1000; // 5 minutes in milliseconds
 
 		const timer = setInterval(() => {
-			if (count > 0) {
+			if (count > 0.0) {
 				addCoins();
 			}
 		}, TIMER_INTERVAL);
