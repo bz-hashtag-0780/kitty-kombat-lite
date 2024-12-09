@@ -64,14 +64,17 @@ export function LoginModal({ open, onOpenChange }: LoginModalProps) {
 							type: 'error',
 						});
 				}
+				alert('something went wrong 1');
 			} else {
 				showToast({
 					message: 'Unexpected error. Please try again.',
 					type: 'error',
 				});
+				alert('something went wrong 2');
 			}
 		} finally {
 			setLoginInProgress(false);
+			alert('something went wrong 3');
 		}
 	};
 

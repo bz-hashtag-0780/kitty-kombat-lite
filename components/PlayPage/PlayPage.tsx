@@ -4,7 +4,7 @@
 // eslint-disable-next-line @next/next/no-img-element, jsx-a11y/alt-text
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { BadgeCheck, Coins, Gamepad2, Gift, ShoppingCart } from 'lucide-react';
@@ -80,6 +80,8 @@ export const PlayPage = () => {
 			console.error('Failed to fetch Flow balance:', error);
 		}
 	};
+
+	const addCoins = useCallback(async () => {}, []);
 
 	return (
 		<div className="flex flex-col h-screen bg-gray-950">
