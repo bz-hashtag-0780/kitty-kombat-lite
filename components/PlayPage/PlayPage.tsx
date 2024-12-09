@@ -20,6 +20,8 @@ export const PlayPage = () => {
 	const [publicAddress, setPublicAddress] = useState<string | null>(null);
 	const [flowBalance, setFlowBalance] = useState(0);
 	const [showLoginModal, setShowLoginModal] = useState(false);
+	const [isTransactionInProgress, setIsTransactionInProgress] =
+		useState(false);
 	const { username, photo_url } = useAuth();
 	const { magic } = useMagic();
 
@@ -82,37 +84,43 @@ export const PlayPage = () => {
 	};
 
 	const addCoins = useCallback(async () => {
-		if (!magic) {
-			return;
-		}
+		if (!magic) return;
 
 		if (!publicAddress || count <= 0) {
 			console.error('No public address or no points to add.');
 			return;
 		}
 
+		if (isTransactionInProgress) {
+			console.log('Transaction already in progress. Skipping...');
+			alert('Transaction already in progress. Skipping...');
+			return; // Skip if a transaction is already in progress
+		}
+
+		setIsTransactionInProgress(true); // Set guard
+
 		try {
 			// Create and send the transaction
 			const transactionId = await fcl.mutate({
 				cadence: `
-			  	import KittyKombatLite from 0x87535df35d7f64e1
+        import KittyKombatLite from 0x87535df35d7f64e1
 
-				transaction(amount: UFix64) {
-					prepare(acct: auth(BorrowValue, IssueStorageCapabilityController, PublishCapability, SaveValue) &Account) {
-						if acct.storage.borrow<&KittyKombatLite.Player>(from: KittyKombatLite.PlayerStoragePath) == nil {
-							acct.storage.save(<- KittyKombatLite.createPlayer(), to: KittyKombatLite.PlayerStoragePath)
-							let playerCap = acct.capabilities.storage.issue<&KittyKombatLite.Player>(KittyKombatLite.PlayerStoragePath)
-							acct.capabilities.publish(playerCap, at: KittyKombatLite.PlayerPublicPath)
-						}
+        transaction(amount: UFix64) {
+          prepare(acct: auth(BorrowValue, IssueStorageCapabilityController, PublishCapability, SaveValue) &Account) {
+            if acct.storage.borrow<&KittyKombatLite.Player>(from: KittyKombatLite.PlayerStoragePath) == nil {
+              acct.storage.save(<- KittyKombatLite.createPlayer(), to: KittyKombatLite.PlayerStoragePath)
+              let playerCap = acct.capabilities.storage.issue<&KittyKombatLite.Player>(KittyKombatLite.PlayerStoragePath)
+              acct.capabilities.publish(playerCap, at: KittyKombatLite.PlayerPublicPath)
+            }
 
-						let playerRef = acct.storage.borrow<&KittyKombatLite.Player>(from: KittyKombatLite.PlayerStoragePath) ?? panic("Could not borrow a reference to the player")
-						
-						playerRef.addCoins(amount: amount)
-					}
+            let playerRef = acct.storage.borrow<&KittyKombatLite.Player>(from: KittyKombatLite.PlayerStoragePath) ?? panic("Could not borrow a reference to the player")
+            
+            playerRef.addCoins(amount: amount)
+          }
 
-					execute {}
-				}
-			`,
+          execute {}
+        }
+      `,
 				args: (arg: any, t: any) => [arg(count.toFixed(2), t.UFix64)],
 				proposer: magic.flow.authorization,
 				authorizations: [magic.flow.authorization],
@@ -124,34 +132,36 @@ export const PlayPage = () => {
 			alert('Transaction submitted');
 
 			// Reset the count after successful transaction
-			setCount(0);
+			setCount(0.0);
 		} catch (error) {
 			console.error('Failed to send transaction:', error);
 			alert('Transaction failed');
+		} finally {
+			setIsTransactionInProgress(false); // Reset the guard
 		}
-	}, [magic, count, publicAddress]);
+	}, [magic, count, publicAddress, isTransactionInProgress]);
 
 	useEffect(() => {
 		// Threshold trigger: Check if count exceeds a set value
 		const POINT_THRESHOLD = 10.0;
 
-		if (count >= POINT_THRESHOLD) {
+		if (count >= POINT_THRESHOLD && !isTransactionInProgress) {
 			addCoins();
 		}
-	}, [count, addCoins]);
+	}, [count, addCoins, isTransactionInProgress]);
 
 	useEffect(() => {
 		// Timer trigger: Call addCoins every 5 minutes
 		const TIMER_INTERVAL = 5 * 60 * 1000; // 5 minutes in milliseconds
 
 		const timer = setInterval(() => {
-			if (count > 0.0) {
+			if (count > 0.0 && !isTransactionInProgress) {
 				addCoins();
 			}
 		}, TIMER_INTERVAL);
 
 		return () => clearInterval(timer); // Cleanup on unmount
-	}, [count, addCoins]);
+	}, [count, addCoins, isTransactionInProgress]);
 
 	return (
 		<div className="flex flex-col h-screen bg-gray-950">
