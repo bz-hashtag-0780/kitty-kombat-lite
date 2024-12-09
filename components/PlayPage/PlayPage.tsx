@@ -22,7 +22,7 @@ export const PlayPage = () => {
 	const [showLoginModal, setShowLoginModal] = useState(false);
 	const [isTransactionInProgress, setIsTransactionInProgress] =
 		useState(false);
-	const { username, photo_url } = useAuth();
+	const { username, photo_url, windowHeight } = useAuth();
 	const { magic } = useMagic();
 
 	useEffect(() => {
@@ -164,7 +164,10 @@ export const PlayPage = () => {
 	}, [count, addCoins, isTransactionInProgress]);
 
 	return (
-		<div className="flex flex-col h-screen bg-gray-950">
+		<div
+			className="flex flex-col bg-gray-950"
+			style={{ height: `${windowHeight}px` }} // Set fixed height
+		>
 			{/* Header */}
 			<div className="flex items-center justify-between p-4 border-b border-gray-800">
 				<div className="flex items-center gap-2">
