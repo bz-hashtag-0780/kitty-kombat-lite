@@ -10,7 +10,6 @@ import { useAppContext } from '@/context/AppContext';
 export const Header = () => {
 	const { username, photo_url } = useAuth();
 	const {
-		count,
 		flowBalance,
 		publicAddress,
 		setShowLoginModal,
