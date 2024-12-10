@@ -1,13 +1,13 @@
 // app/layout.tsx
 'use client';
 
-import { Footer } from '@/components/ui/Footer';
 import './globals.css';
-import { AuthContextProvider } from '@/context/AuthContext';
-import MagicProvider from '@/context/MagicContext';
-import * as fcl from '@onflow/fcl';
 import { Header } from '@/components/ui/Header';
+import { Footer } from '@/components/ui/Footer';
+import MagicProvider from '@/context/MagicContext';
+import { AuthContextProvider } from '@/context/AuthContext';
 import { AppContextProvider } from '@/context/AppContext';
+import * as fcl from '@onflow/fcl';
 
 fcl.config({
 	'accessNode.api': 'https://rest-mainnet.onflow.org',

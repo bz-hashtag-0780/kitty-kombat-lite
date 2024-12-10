@@ -11,7 +11,7 @@ export const PlayPage = () => {
 	const { count, profitPerHour, setCount } = useAppContext();
 
 	return (
-		<>
+		<div className="flex flex-col bg-gray-950">
 			{/* Profit per hour */}
 			<div className="flex justify-center p-2 bg-gradient-to-r from-yellow-600/20 to-yellow-500/20">
 				<div className="flex items-center gap-2 text-sm">
@@ -53,6 +53,6 @@ export const PlayPage = () => {
 				</div>
 				<div className="mt-2 text-gray-400">Tap to earn coins!</div>
 			</div>
-		</>
+		</div>
 	);
 };

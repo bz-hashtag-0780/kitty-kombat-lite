@@ -5,7 +5,7 @@ import { PlayPage } from '@/components/PlayPage/PlayPage';
 
 export default function Home() {
 	return (
-		<div className="flex flex-col bg-gray-950">
+		<div>
 			<PlayPage />
 		</div>
 	);
