@@ -27,7 +27,7 @@ export const PlayPage = () => {
 				{/* Clickable cat circle */}
 				<button
 					onClick={() => setCount((prev) => prev + 1)}
-					className="group relative w-64 h-64 rounded-full transition-all duration-200 active:scale-95"
+					className="group relative w-60 h-60 rounded-full transition-all duration-200 active:scale-95"
 				>
 					{/* Outer ring */}
 					<div className="absolute inset-0 rounded-full bg-gradient-to-b from-gray-800 to-gray-900 p-1">
