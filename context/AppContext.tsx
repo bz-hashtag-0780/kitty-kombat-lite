@@ -24,6 +24,7 @@ type AppContextType = {
 	isTransactionInProgress: boolean;
 	addCoins: () => Promise<void>;
 	profitPerHour: number;
+	coinBalance: number;
 };
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -32,6 +33,7 @@ export const AppContextProvider = ({ children }: { children: ReactNode }) => {
 	const [count, setCount] = useState(0.0);
 	const [profitPerHour] = useState(15);
 	const [publicAddress, setPublicAddress] = useState<string | null>(null);
+	const [coinBalance, setCoinBalance] = useState(0);
 	const [flowBalance, setFlowBalance] = useState(0);
 	const [showLoginModal, setShowLoginModal] = useState(false);
 	const [isTransactionInProgress, setIsTransactionInProgress] =
@@ -46,6 +48,7 @@ export const AppContextProvider = ({ children }: { children: ReactNode }) => {
 
 			if (savedAddress) {
 				fetchFlowBalance(savedAddress);
+				fetchCoins(savedAddress);
 			}
 		}
 
@@ -86,6 +89,28 @@ export const AppContextProvider = ({ children }: { children: ReactNode }) => {
 			setFlowBalance(parseFloat(balance));
 		} catch (error) {
 			console.error('Failed to fetch Flow balance:', error);
+		}
+	};
+
+	const fetchCoins = async (address: string) => {
+		try {
+			const balance = await fcl.query({
+				cadence: `
+                import KittyKombatLite from 0x87535df35d7f64e1
+
+				access(all) fun main(address: Address): UFix64 {
+					let account = getAccount(address)
+					let player = account.capabilities.borrow<&KittyKombatLite.Player>(KittyKombatLite.PlayerPublicPath)
+						?? panic("Could not borrow a reference to the player")
+					
+					return player.coins
+				}
+            `,
+				args: (arg: any, t: any) => [arg(address, t.Address)],
+			});
+			setCoinBalance(parseFloat(balance));
+		} catch (error) {
+			console.error('Failed to fetch Coin balance:', error);
 		}
 	};
 
@@ -173,6 +198,7 @@ export const AppContextProvider = ({ children }: { children: ReactNode }) => {
 				isTransactionInProgress,
 				addCoins,
 				profitPerHour,
+				coinBalance,
 			}}
 		>
 			{children}

@@ -15,6 +15,7 @@ export const Header = () => {
 		publicAddress,
 		setShowLoginModal,
 		showLoginModal,
+		coinBalance,
 	} = useAppContext();
 
 	return (
@@ -43,7 +44,10 @@ export const Header = () => {
 					<div>
 						<div className="flex items-center gap-1">
 							<Coins className="w-3 h-3 text-yellow-500" />
-							<span className="text-white text-sm">{count}</span>
+							<span className="text-white text-sm">
+								{/* {count} */}
+								{coinBalance}
+							</span>
 						</div>
 						{flowBalance && (
 							<div className="flex items-center gap-1">
