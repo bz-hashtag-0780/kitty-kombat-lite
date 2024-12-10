@@ -8,6 +8,8 @@ import MagicProvider from '@/context/MagicContext';
 import { AuthContextProvider } from '@/context/AuthContext';
 import { AppContextProvider } from '@/context/AppContext';
 import * as fcl from '@onflow/fcl';
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 fcl.config({
 	'accessNode.api': 'https://rest-mainnet.onflow.org',
@@ -24,6 +26,10 @@ export default function RootLayout({
 				<MagicProvider>
 					<AuthContextProvider>
 						<AppContextProvider>
+							<ToastContainer
+								position="bottom-right"
+								pauseOnFocusLoss={false}
+							/>
 							<Header />
 							{children}
 							<Footer />

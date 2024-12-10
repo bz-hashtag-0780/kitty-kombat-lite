@@ -13,6 +13,8 @@ import React, {
 } from 'react';
 import * as fcl from '@onflow/fcl';
 import { useMagic } from '@/context/MagicContext';
+import { toast } from 'react-toastify';
+import { toastStatus } from '@/utils/toastStatus';
 
 type AppContextType = {
 	count: number;
@@ -29,8 +31,15 @@ type AppContextType = {
 const AppContext = createContext<AppContextType | undefined>(undefined);
 
 export const AppContextProvider = ({ children }: { children: ReactNode }) => {
-	const [localCount, setLocalCount] = useState(0.0); // Local taps count
-	const [smartContractBalance, setSmartContractBalance] = useState(0.0); // On-chain balance
+	// Load initial localCount from localStorage
+	const [localCount, setLocalCountState] = useState<number>(() => {
+		const savedCount = localStorage.getItem('localCount');
+		const parsedCount = parseFloat(savedCount || '0'); // Fallback to 0 if invalid
+		return isNaN(parsedCount) ? 0.0 : parsedCount; // Ensure it's a valid number
+	});
+
+	const [smartContractBalance, setSmartContractBalance] =
+		useState<number>(0.0); // Default to 0
 	const [profitPerHour] = useState(15);
 	const [publicAddress, setPublicAddress] = useState<string | null>(null);
 	const [flowBalance, setFlowBalance] = useState(0);
@@ -38,6 +47,13 @@ export const AppContextProvider = ({ children }: { children: ReactNode }) => {
 	const isTransactionInProgressRef = React.useRef(false); // Ref for transaction progress
 
 	const { magic } = useMagic();
+
+	// Persist localCount to localStorage whenever it changes
+	const setLocalCount: Dispatch<SetStateAction<number>> = (newCount) => {
+		console.log('Updating localCount:', newCount); // Debug log
+		setLocalCountState(newCount);
+		localStorage.setItem('localCount', newCount.toString());
+	};
 
 	useEffect(() => {
 		if (typeof window !== 'undefined') {
@@ -105,6 +121,7 @@ export const AppContextProvider = ({ children }: { children: ReactNode }) => {
             `,
 				args: (arg: any, t: any) => [arg(address, t.Address)],
 			});
+			console.log('Fetched on-chain balance:', balance); // Debug log
 			setSmartContractBalance(parseFloat(balance));
 		} catch (error) {
 			console.error('Failed to fetch Coin balance:', error);
@@ -128,6 +145,7 @@ export const AppContextProvider = ({ children }: { children: ReactNode }) => {
 			}
 
 			isTransactionInProgressRef.current = true;
+			const id = toast.loading('Initializing...');
 
 			try {
 				const transactionId = await fcl.mutate({
@@ -158,60 +176,81 @@ export const AppContextProvider = ({ children }: { children: ReactNode }) => {
 				});
 
 				console.log('Transaction submitted with ID:', transactionId);
-				alert('Transaction submitted!');
+				fcl.tx(transactionId).subscribe((res: any) => {
+					toastStatus(id, res.status);
+
+					console.log(res);
+
+					if (res.status === 4) {
+						// SEALED status
+						console.log('Transaction sealed via subscribe.');
+						toast.update(id, {
+							render: 'Transaction Sealed',
+							type: 'success',
+							isLoading: false,
+							autoClose: 5000,
+						});
+						// Delay resetting transaction progress
+						setTimeout(() => {
+							isTransactionInProgressRef.current = false;
+						}, 2000);
+					}
+				});
 
 				// Fetch updated balance
-				await fetchCoins(publicAddress);
+				// await fetchCoins(publicAddress);
 			} catch (error) {
 				console.error('Failed to send transaction:', error);
 			} finally {
 				isTransactionInProgressRef.current = false;
 			}
 		},
-		[magic, publicAddress, fetchCoins]
+		[magic, publicAddress]
 	);
+
+	const saveOnchain = useCallback(async () => {
+		console.log('Syncing with on-chain balance...');
+
+		if (!publicAddress || isTransactionInProgressRef.current) {
+			console.log(
+				'Skipping sync: either no publicAddress or transaction in progress'
+			);
+			return;
+		}
+
+		console.log('Fetching on-chain balance...');
+		await fetchCoins(publicAddress);
+
+		// Calculate the count difference
+		const countDiff = localCount; // Local taps that haven't been saved
+		console.log('Local count:', localCount);
+		console.log('On-chain count:', smartContractBalance);
+		console.log('Count difference (to save):', countDiff);
+
+		if (countDiff > 0) {
+			console.log('Sending coins to on-chain balance...');
+			// Send the difference (max 50 per transaction)
+			const amountToSend = Math.min(countDiff, 50);
+			await addCoins(amountToSend);
+		}
+	}, [publicAddress, localCount, smartContractBalance, addCoins, fetchCoins]);
 
 	// Timer-based transaction every 8 seconds
 	useEffect(() => {
-		const syncWithOnChain = async () => {
-			console.log('Syncing with on-chain balance...');
+		// const syncWithOnChain = async () => {};
+		const interval = setInterval(() => {
+			saveOnchain();
+		}, 15000);
 
-			if (!publicAddress || isTransactionInProgressRef.current) {
-				console.log(
-					'Skipping sync: either no publicAddress or transaction in progress'
-				);
-				return;
-			}
+		// const timer = setTimeout(syncWithOnChain, 8000); // 8 seconds
 
-			console.log('Fetching on-chain balance...');
-			await fetchCoins(publicAddress);
-
-			// Calculate the count difference
-			const countDiff = localCount; // Local taps that haven't been saved
-			console.log('Local count:', localCount);
-			console.log('On-chain count:', smartContractBalance);
-			console.log('Count difference (to save):', countDiff);
-
-			if (countDiff > 0) {
-				console.log('Sending coins to on-chain balance...');
-				// Send the difference (max 50 per transaction)
-				const amountToSend = Math.min(countDiff, 50);
-				await addCoins(amountToSend);
-
-				// Decrease local count by the amount sent
-				setLocalCount((prev) => prev - amountToSend);
-			}
-		};
-
-		const timer = setTimeout(syncWithOnChain, 8000); // 8 seconds
-
-		return () => clearTimeout(timer); // Cleanup on unmount
-	}, [publicAddress, localCount, smartContractBalance, addCoins, fetchCoins]);
+		return () => clearInterval(interval); // Cleanup on unmount
+	}, [saveOnchain]);
 
 	return (
 		<AppContext.Provider
 			value={{
-				count: localCount + smartContractBalance, // Smooth total display
+				count: (localCount || 0) + (smartContractBalance || 0), // Ensure valid numbers
 				setCount: setLocalCount, // Increment local count
 				flowBalance,
 				publicAddress,
