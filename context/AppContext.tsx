@@ -30,10 +30,12 @@ type AppContextType = {
 const AppContext = createContext<AppContextType | undefined>(undefined);
 
 export const AppContextProvider = ({ children }: { children: ReactNode }) => {
-	const [count, setCount] = useState(0.0);
+	const [localCount, setLocalCount] = useState(0.0); // Local taps count
+	const [smartContractBalance, setSmartContractBalance] = useState(0.0); // On-chain balance
+	// const [count, setCount] = useState(0.0);
 	const [profitPerHour] = useState(15);
 	const [publicAddress, setPublicAddress] = useState<string | null>(null);
-	const [coinBalance, setCoinBalance] = useState(0);
+	// const [coinBalance, setCoinBalance] = useState(0);
 	const [flowBalance, setFlowBalance] = useState(0);
 	const [showLoginModal, setShowLoginModal] = useState(false);
 	const [isTransactionInProgress, setIsTransactionInProgress] =
@@ -48,7 +50,6 @@ export const AppContextProvider = ({ children }: { children: ReactNode }) => {
 
 			if (savedAddress) {
 				fetchFlowBalance(savedAddress);
-				fetchCoins(savedAddress);
 			}
 		}
 
@@ -92,7 +93,7 @@ export const AppContextProvider = ({ children }: { children: ReactNode }) => {
 		}
 	};
 
-	const fetchCoins = async (address: string) => {
+	const fetchCoins = useCallback(async (address: string) => {
 		try {
 			const balance = await fcl.query({
 				cadence: `
@@ -108,22 +109,23 @@ export const AppContextProvider = ({ children }: { children: ReactNode }) => {
             `,
 				args: (arg: any, t: any) => [arg(address, t.Address)],
 			});
-			setCoinBalance(parseFloat(balance));
+			setSmartContractBalance(parseFloat(balance));
 		} catch (error) {
 			console.error('Failed to fetch Coin balance:', error);
 		}
-	};
+	}, []);
+
+	useEffect(() => {
+		if (publicAddress) {
+			fetchCoins(publicAddress); // Fetch balance on mount
+		}
+	}, [publicAddress, fetchCoins]);
 
 	const addCoins = useCallback(async () => {
-		if (!magic) return;
-
-		if (!publicAddress || count <= 0) {
-			console.error('No public address or no points to add.');
-			return;
-		}
+		if (!magic || !publicAddress || localCount <= 0) return;
 
 		if (isTransactionInProgress) {
-			alert('Transaction already in progress. Skipping...');
+			console.warn('Transaction already in progress');
 			return;
 		}
 
@@ -148,7 +150,9 @@ export const AppContextProvider = ({ children }: { children: ReactNode }) => {
                   execute {}
                 }
               `,
-				args: (arg: any, t: any) => [arg(count.toFixed(2), t.UFix64)],
+				args: (arg: any, t: any) => [
+					arg(localCount.toFixed(2), t.UFix64),
+				],
 				proposer: magic.flow.authorization,
 				authorizations: [magic.flow.authorization],
 				payer: magic.flow.authorization,
@@ -156,41 +160,44 @@ export const AppContextProvider = ({ children }: { children: ReactNode }) => {
 			});
 
 			console.log('Transaction submitted with ID:', transactionId);
-			alert('Transaction submitted');
-			setCount(0.0);
+
+			// Fetch updated balance and reset local count
+			await fetchCoins(publicAddress);
+			setLocalCount(0); // Reset local count
 		} catch (error) {
 			console.error('Failed to send transaction:', error);
-			alert('Transaction failed');
 		} finally {
 			setIsTransactionInProgress(false);
 		}
-	}, [magic, count, publicAddress, isTransactionInProgress]);
+	}, [magic, publicAddress, localCount, fetchCoins, isTransactionInProgress]);
 
+	// Threshold-based transaction
 	useEffect(() => {
 		const POINT_THRESHOLD = 10.0;
 
-		if (count >= POINT_THRESHOLD && !isTransactionInProgress) {
+		if (localCount >= POINT_THRESHOLD && !isTransactionInProgress) {
 			addCoins();
 		}
-	}, [count, addCoins, isTransactionInProgress]);
+	}, [localCount, addCoins, isTransactionInProgress]);
 
+	// Timer-based transaction
 	useEffect(() => {
 		const TIMER_INTERVAL = 5 * 60 * 1000;
 
 		const timer = setInterval(() => {
-			if (count > 0.0 && !isTransactionInProgress) {
+			if (localCount > 0 && !isTransactionInProgress) {
 				addCoins();
 			}
 		}, TIMER_INTERVAL);
 
 		return () => clearInterval(timer);
-	}, [count, addCoins, isTransactionInProgress]);
+	}, [localCount, addCoins, isTransactionInProgress]);
 
 	return (
 		<AppContext.Provider
 			value={{
-				count,
-				setCount,
+				count: localCount + smartContractBalance, // Smooth total display
+				setCount: setLocalCount, // Increment local count
 				flowBalance,
 				publicAddress,
 				showLoginModal,
@@ -198,7 +205,7 @@ export const AppContextProvider = ({ children }: { children: ReactNode }) => {
 				isTransactionInProgress,
 				addCoins,
 				profitPerHour,
-				coinBalance,
+				coinBalance: smartContractBalance,
 			}}
 		>
 			{children}
