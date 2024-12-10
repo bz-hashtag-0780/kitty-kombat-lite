@@ -22,7 +22,6 @@ type AppContextType = {
 	showLoginModal: boolean;
 	setShowLoginModal: Dispatch<SetStateAction<boolean>>;
 	isTransactionInProgress: boolean;
-	addCoins: () => Promise<void>;
 	profitPerHour: number;
 	coinBalance: number;
 };
@@ -32,14 +31,11 @@ const AppContext = createContext<AppContextType | undefined>(undefined);
 export const AppContextProvider = ({ children }: { children: ReactNode }) => {
 	const [localCount, setLocalCount] = useState(0.0); // Local taps count
 	const [smartContractBalance, setSmartContractBalance] = useState(0.0); // On-chain balance
-	// const [count, setCount] = useState(0.0);
 	const [profitPerHour] = useState(15);
 	const [publicAddress, setPublicAddress] = useState<string | null>(null);
-	// const [coinBalance, setCoinBalance] = useState(0);
 	const [flowBalance, setFlowBalance] = useState(0);
 	const [showLoginModal, setShowLoginModal] = useState(false);
-	const [isTransactionInProgress, setIsTransactionInProgress] =
-		useState(false);
+	const isTransactionInProgressRef = React.useRef(false); // Ref for transaction progress
 
 	const { magic } = useMagic();
 
@@ -121,19 +117,21 @@ export const AppContextProvider = ({ children }: { children: ReactNode }) => {
 		}
 	}, [publicAddress, fetchCoins]);
 
-	const addCoins = useCallback(async () => {
-		if (!magic || !publicAddress || localCount <= 0) return;
+	const addCoins = useCallback(
+		async (countDiff: number) => {
+			if (!magic || !publicAddress || countDiff <= 0) return;
 
-		if (isTransactionInProgress) {
-			console.warn('Transaction already in progress');
-			return;
-		}
+			if (isTransactionInProgressRef.current) {
+				console.warn('Transaction already in progress');
+				alert('Transaction already in progress');
+				return;
+			}
 
-		setIsTransactionInProgress(true);
+			isTransactionInProgressRef.current = true;
 
-		try {
-			const transactionId = await fcl.mutate({
-				cadence: `
+			try {
+				const transactionId = await fcl.mutate({
+					cadence: `
                 import KittyKombatLite from 0x87535df35d7f64e1
 
                 transaction(amount: UFix64) {
@@ -150,48 +148,65 @@ export const AppContextProvider = ({ children }: { children: ReactNode }) => {
                   execute {}
                 }
               `,
-				args: (arg: any, t: any) => [
-					arg(localCount.toFixed(2), t.UFix64),
-				],
-				proposer: magic.flow.authorization,
-				authorizations: [magic.flow.authorization],
-				payer: magic.flow.authorization,
-				limit: 9999,
-			});
+					args: (arg: any, t: any) => [
+						arg(countDiff.toFixed(2), t.UFix64),
+					],
+					proposer: magic.flow.authorization,
+					authorizations: [magic.flow.authorization],
+					payer: magic.flow.authorization,
+					limit: 9999,
+				});
 
-			console.log('Transaction submitted with ID:', transactionId);
+				console.log('Transaction submitted with ID:', transactionId);
+				alert('Transaction submitted!');
 
-			// Fetch updated balance and reset local count
-			await fetchCoins(publicAddress);
-			setLocalCount(0); // Reset local count
-		} catch (error) {
-			console.error('Failed to send transaction:', error);
-		} finally {
-			setIsTransactionInProgress(false);
-		}
-	}, [magic, publicAddress, localCount, fetchCoins, isTransactionInProgress]);
-
-	// Threshold-based transaction
-	useEffect(() => {
-		const POINT_THRESHOLD = 10.0;
-
-		if (localCount >= POINT_THRESHOLD && !isTransactionInProgress) {
-			addCoins();
-		}
-	}, [localCount, addCoins, isTransactionInProgress]);
-
-	// Timer-based transaction
-	useEffect(() => {
-		const TIMER_INTERVAL = 5 * 60 * 1000;
-
-		const timer = setInterval(() => {
-			if (localCount > 0 && !isTransactionInProgress) {
-				addCoins();
+				// Fetch updated balance
+				await fetchCoins(publicAddress);
+			} catch (error) {
+				console.error('Failed to send transaction:', error);
+			} finally {
+				isTransactionInProgressRef.current = false;
 			}
-		}, TIMER_INTERVAL);
+		},
+		[magic, publicAddress, fetchCoins]
+	);
 
-		return () => clearInterval(timer);
-	}, [localCount, addCoins, isTransactionInProgress]);
+	// Timer-based transaction every 8 seconds
+	useEffect(() => {
+		const syncWithOnChain = async () => {
+			console.log('Syncing with on-chain balance...');
+
+			if (!publicAddress || isTransactionInProgressRef.current) {
+				console.log(
+					'Skipping sync: either no publicAddress or transaction in progress'
+				);
+				return;
+			}
+
+			console.log('Fetching on-chain balance...');
+			await fetchCoins(publicAddress);
+
+			// Calculate the count difference
+			const countDiff = localCount; // Local taps that haven't been saved
+			console.log('Local count:', localCount);
+			console.log('On-chain count:', smartContractBalance);
+			console.log('Count difference (to save):', countDiff);
+
+			if (countDiff > 0) {
+				console.log('Sending coins to on-chain balance...');
+				// Send the difference (max 50 per transaction)
+				const amountToSend = Math.min(countDiff, 50);
+				await addCoins(amountToSend);
+
+				// Decrease local count by the amount sent
+				setLocalCount((prev) => prev - amountToSend);
+			}
+		};
+
+		const timer = setTimeout(syncWithOnChain, 8000); // 8 seconds
+
+		return () => clearTimeout(timer); // Cleanup on unmount
+	}, [publicAddress, localCount, smartContractBalance, addCoins, fetchCoins]);
 
 	return (
 		<AppContext.Provider
@@ -202,8 +217,7 @@ export const AppContextProvider = ({ children }: { children: ReactNode }) => {
 				publicAddress,
 				showLoginModal,
 				setShowLoginModal,
-				isTransactionInProgress,
-				addCoins,
+				isTransactionInProgress: isTransactionInProgressRef.current,
 				profitPerHour,
 				coinBalance: smartContractBalance,
 			}}
