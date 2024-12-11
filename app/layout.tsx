@@ -28,7 +28,7 @@ export default function RootLayout({
 						<AppContextProvider>
 							<ToastContainer
 								position="bottom-right"
-								pauseOnFocusLoss={false}
+								pauseOnFocusLoss={true}
 								theme="dark"
 							/>
 							<Header />

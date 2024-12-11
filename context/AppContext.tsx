@@ -28,6 +28,7 @@ type AppContextType = {
 	profitPerHour: number;
 	coinBalance: number;
 	failedTransactionCount: number;
+	FAILURE_THRESHOLD: number;
 };
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -321,6 +322,7 @@ export const AppContextProvider = ({ children }: { children: ReactNode }) => {
 				profitPerHour,
 				coinBalance: smartContractBalance,
 				failedTransactionCount,
+				FAILURE_THRESHOLD,
 			}}
 		>
 			{children}
