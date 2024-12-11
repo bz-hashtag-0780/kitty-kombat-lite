@@ -10,7 +10,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/EarnPage/ui/input';
 
 export const EarnPage = () => {
-	const { coinBalance, flowBalance } = useAppContext();
+	const { coinBalance, flowBalance, publicAddress } = useAppContext();
 	const { windowHeight } = useAuth();
 	const [withdrawAmount, setWithdrawAmount] = React.useState('');
 
@@ -18,9 +18,6 @@ export const EarnPage = () => {
 	const headerHeight = 70;
 	const footerHeight = 80;
 	const contentHeight = windowHeight - headerHeight - footerHeight;
-
-	// Placeholder wallet address
-	const walletAddress = '0x1234...5678';
 
 	const handleWithdraw = () => {
 		// Implement withdraw logic here
@@ -51,7 +48,7 @@ export const EarnPage = () => {
 					<CardContent>
 						<p className="text-sm text-gray-400 mb-2">Address:</p>
 						<p className="font-mono text-sm break-all">
-							{walletAddress}
+							{publicAddress}
 						</p>
 					</CardContent>
 				</Card>
@@ -84,7 +81,7 @@ export const EarnPage = () => {
 
 				<Card className="w-full max-w-md bg-gray-900 text-white border-gray-800">
 					<CardHeader>
-						<CardTitle>Potential Airdrop</CardTitle>
+						<CardTitle>Airdrop: {coinBalance} coins</CardTitle>
 					</CardHeader>
 					<CardContent>
 						<p className="text-sm text-gray-400">
@@ -94,7 +91,7 @@ export const EarnPage = () => {
 					</CardContent>
 				</Card>
 
-				<Button variant="outline" className="mt-4">
+				<Button variant="outline" className="mt-4 p-2">
 					<LogOut className="mr-2 h-4 w-4" /> Log Out
 				</Button>
 			</div>
