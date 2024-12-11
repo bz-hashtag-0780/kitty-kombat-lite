@@ -226,6 +226,13 @@ export const AppContextProvider = ({ children }: { children: ReactNode }) => {
 				});
 			} catch (error) {
 				console.error('Failed to send transaction:', error);
+				isTransactionInProgressRef.current = false;
+				toast.update(id, {
+					render: 'Failed to save progress',
+					type: 'error',
+					isLoading: false,
+					autoClose: 5000,
+				});
 			}
 		},
 		[magic, publicAddress, fetchCoins]
