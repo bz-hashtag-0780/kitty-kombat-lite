@@ -31,11 +31,6 @@ type AppContextType = {
 const AppContext = createContext<AppContextType | undefined>(undefined);
 
 export const AppContextProvider = ({ children }: { children: ReactNode }) => {
-	// const [localCount, setLocalCountState] = useState<number>(() => {
-	// 	const savedCount = localStorage.getItem('localCount');
-	// 	const parsedCount = parseFloat(savedCount || '0'); // Fallback to 0 if invalid
-	// 	return isNaN(parsedCount) ? 0.0 : parsedCount; // Ensure it's a valid number
-	// });
 	const [totalCount, setTotalCountState] = useState<number>(0.0);
 	const [smartContractBalance, setSmartContractBalance] =
 		useState<number>(0.0);
