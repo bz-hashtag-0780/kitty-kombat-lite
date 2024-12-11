@@ -148,7 +148,9 @@ export const AppContextProvider = ({ children }: { children: ReactNode }) => {
 							console.warn(
 								`Local totalCount (${parsedSavedTotal}) is less than on-chain balance (${onChainBalance}). Resetting to on-chain balance.`
 							);
-							persistTotalCount(onChainBalance);
+							if (onChainBalance !== undefined) {
+								persistTotalCount(onChainBalance);
+							}
 						} else {
 							// If valid, use the saved total
 							setTotalCountState(parsedSavedTotal);
@@ -286,6 +288,12 @@ export const AppContextProvider = ({ children }: { children: ReactNode }) => {
 				console.log('Sending coins to on-chain balance...');
 				const amountToSend = Math.min(countDiff, 100); // Maximum per transaction
 				await addCoins(amountToSend);
+			}
+
+			if (countDiff < 0) {
+				console.warn('Local count is less than on-chain balance');
+				// Update local count to match on-chain balance
+				persistTotalCount(onChainBalance);
 			}
 		} catch (error) {
 			console.error('Error in saveOnchain:', error);
