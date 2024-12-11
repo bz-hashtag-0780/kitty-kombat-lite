@@ -260,7 +260,7 @@ export const AppContextProvider = ({ children }: { children: ReactNode }) => {
 			// Perform transaction if there's a difference
 			if (countDiff > 0) {
 				console.log('Sending coins to on-chain balance...');
-				const amountToSend = Math.min(countDiff, 50); // Maximum per transaction
+				const amountToSend = Math.min(countDiff, 100); // Maximum per transaction
 				await addCoins(amountToSend);
 			}
 		} catch (error) {

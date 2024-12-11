@@ -42,8 +42,8 @@ access(all) contract KittyKombatLite {
         access(all) fun addCoins(amount: UFix64) {
             pre {
                 amount > 0.0: "Amount must be greater than zero"
-                amount <= 50.0: "Amount exceeds maximum allowed per transaction"
-                getCurrentBlock().timestamp >= self.lastManualAdd + 1.0: "Not enough time has passed"
+                amount <= 100.0: "Amount exceeds maximum allowed per transaction"
+                getCurrentBlock().timestamp >= self.lastManualAdd + 2.0: "Not enough time has passed"
             }
             self.coins = self.coins + amount
             self.lastManualAdd = getCurrentBlock().timestamp
