@@ -132,6 +132,7 @@ export const AppContextProvider = ({ children }: { children: ReactNode }) => {
 
 	useEffect(() => {
 		if (publicAddress) {
+			fetchFlowBalance(publicAddress);
 			(async () => {
 				// Load saved `totalCount` from localStorage
 				const savedTotal = localStorage.getItem('totalCount');
