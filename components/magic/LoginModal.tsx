@@ -74,7 +74,6 @@ export function LoginModal({ open, onOpenChange }: LoginModalProps) {
 			}
 		} finally {
 			setLoginInProgress(false);
-			alert('something went wrong 3');
 		}
 	};
 
