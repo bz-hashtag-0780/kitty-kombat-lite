@@ -33,10 +33,18 @@ export const Header = () => {
 				</Avatar>
 				<div>
 					<div className="flex items-center gap-1">
-						<span className="font-semibold text-white">
-							@{username ? username : 'anon'}
-						</span>
-						<BadgeCheck className="w-4 h-4 text-blue-500" />
+						{username ? (
+							<>
+								<span className="font-semibold text-white">
+									@{username}
+								</span>
+								<BadgeCheck className="w-4 h-4 text-blue-500" />
+							</>
+						) : (
+							<span className="font-semibold text-white">
+								@anon
+							</span>
+						)}
 					</div>
 					<div className="text-sm text-gray-400">{publicAddress}</div>
 				</div>
