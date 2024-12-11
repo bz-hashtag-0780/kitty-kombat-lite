@@ -15,7 +15,7 @@ export const PlayPage = () => {
 
 	// Define header and footer heights
 	const headerHeight = 80; // Adjust this value based on your actual header height
-	const footerHeight = 80; // Adjust this value based on your actual footer height
+	const footerHeight = 90; // Adjust this value based on your actual footer height
 	const contentHeight = windowHeight - headerHeight - footerHeight;
 
 	return (
