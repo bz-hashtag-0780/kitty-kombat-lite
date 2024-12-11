@@ -29,6 +29,7 @@ export default function RootLayout({
 							<ToastContainer
 								position="bottom-right"
 								pauseOnFocusLoss={false}
+								theme="dark"
 							/>
 							<Header />
 							{children}

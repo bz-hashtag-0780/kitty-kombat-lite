@@ -169,7 +169,7 @@ export const AppContextProvider = ({ children }: { children: ReactNode }) => {
 			}
 
 			isTransactionInProgressRef.current = true;
-			const id = toast.loading('Initializing...');
+			const id = toast.loading('Saving progress...');
 
 			try {
 				const transactionId = await fcl.mutate({
@@ -209,7 +209,7 @@ export const AppContextProvider = ({ children }: { children: ReactNode }) => {
 						// SEALED status
 						console.log('Transaction sealed via subscribe.');
 						toast.update(id, {
-							render: 'Transaction Sealed',
+							render: 'Progress saved onchain!',
 							type: 'success',
 							isLoading: false,
 							autoClose: 5000,
