@@ -2,7 +2,7 @@
 'use client';
 
 import React from 'react';
-import { Wallet, ArrowUpRight, LogOut } from 'lucide-react';
+import { Wallet, ArrowUpRight, LogOut, Copy } from 'lucide-react';
 import { useAppContext } from '@/context/AppContext';
 import { useAuth } from '@/context/AuthContext';
 import { Button } from '@/components/ui/button';
@@ -56,8 +56,9 @@ export const EarnPage = () => {
 					</CardHeader>
 					<CardContent>
 						<p className="text-sm text-gray-400 mb-2">Address:</p>
-						<p className="font-mono text-sm break-all">
+						<p className="font-mono text-sm break-all flex flex-row gap-x-1 items-center">
 							{publicAddress}
+							<Copy className="mr-2 h-3 w-3" />
 						</p>
 					</CardContent>
 				</Card>
