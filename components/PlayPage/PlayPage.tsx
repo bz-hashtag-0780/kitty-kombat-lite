@@ -1,7 +1,4 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @next/next/no-img-element */
-// eslint-disable-next-line @next/next/no-img-element, jsx-a11y/alt-text
 'use client';
 
 import React from 'react';
