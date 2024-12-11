@@ -55,10 +55,9 @@ export const EarnPage = () => {
 					}}
 				>
 					<CardHeader>
-						<CardTitle>Your Wallet</CardTitle>
+						<CardTitle>Your Wallet Address</CardTitle>
 					</CardHeader>
 					<CardContent>
-						<p className="text-sm text-gray-400 mb-2">Address:</p>
 						<p className="font-mono text-sm break-all flex flex-row gap-x-1 items-center">
 							{publicAddress}
 							<Copy className="mr-2 h-3 w-3" />
