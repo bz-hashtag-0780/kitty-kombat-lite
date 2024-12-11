@@ -148,9 +148,7 @@ export const AppContextProvider = ({ children }: { children: ReactNode }) => {
 							console.warn(
 								`Local totalCount (${parsedSavedTotal}) is less than on-chain balance (${onChainBalance}). Resetting to on-chain balance.`
 							);
-							if (onChainBalance !== undefined) {
-								persistTotalCount(onChainBalance);
-							}
+							persistTotalCount(onChainBalance);
 						} else {
 							// If valid, use the saved total
 							setTotalCountState(parsedSavedTotal);
