@@ -47,7 +47,9 @@ export const EarnPage = () => {
 					onClick={() => {
 						if (publicAddress) {
 							navigator.clipboard.writeText(publicAddress);
-							toast('Address copied to clipboard!');
+							toast('Address copied to clipboard!', {
+								autoClose: 2000,
+							});
 						}
 					}}
 				>
