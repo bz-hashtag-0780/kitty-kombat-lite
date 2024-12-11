@@ -5,7 +5,7 @@ import React from 'react';
 import { Wallet, ArrowUpRight, LogOut, Copy } from 'lucide-react';
 import { useAppContext } from '@/context/AppContext';
 import { useAuth } from '@/context/AuthContext';
-import { Button } from '@/components/ui/button';
+import { Button } from '@/components/EarnPage/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/EarnPage/ui/input';
 import { toast } from 'react-toastify';
@@ -14,6 +14,7 @@ export const EarnPage = () => {
 	const { coinBalance, flowBalance, publicAddress } = useAppContext();
 	const { windowHeight } = useAuth();
 	const [withdrawAmount, setWithdrawAmount] = React.useState('');
+	const [withdrawAddress, setWithdrawAddress] = React.useState('');
 
 	// Define header and footer heights
 	const headerHeight = 70;
@@ -70,19 +71,31 @@ export const EarnPage = () => {
 						<CardTitle>Withdraw FLOW</CardTitle>
 					</CardHeader>
 					<CardContent>
-						<div className="flex space-x-2">
-							<Input
-								type="number"
-								placeholder="Amount"
-								value={withdrawAmount}
-								onChange={(e: any) =>
-									setWithdrawAmount(e.target.value)
-								}
-								className="bg-gray-800 border-gray-700 text-white"
-							/>
+						<div className="flex flex-col space-y-2">
+							<div className="flex space-x-2">
+								<Input
+									type="text"
+									placeholder="Address"
+									value={withdrawAddress}
+									onChange={(
+										e: React.ChangeEvent<HTMLInputElement>
+									) => setWithdrawAddress(e.target.value)}
+									className="bg-gray-800 border-gray-700 text-white flex-grow"
+								/>
+								<Input
+									type="number"
+									placeholder="Amount"
+									value={withdrawAmount}
+									onChange={(
+										e: React.ChangeEvent<HTMLInputElement>
+									) => setWithdrawAmount(e.target.value)}
+									className="bg-gray-800 border-gray-700 text-white w-24"
+								/>
+							</div>
 							<Button
 								onClick={handleWithdraw}
-								className="whitespace-nowrap"
+								className="whitespace-nowrap w-full bg-gray-700 hover:bg-gray-800"
+								variant="ghost"
 							>
 								Withdraw{' '}
 								<ArrowUpRight className="ml-2 h-4 w-4" />
