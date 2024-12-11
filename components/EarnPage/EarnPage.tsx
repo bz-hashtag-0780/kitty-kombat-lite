@@ -11,20 +11,22 @@ import { Input } from '@/components/EarnPage/ui/input';
 import { toast } from 'react-toastify';
 
 export const EarnPage = () => {
-	const { coinBalance, flowBalance, publicAddress } = useAppContext();
+	const {
+		coinBalance,
+		flowBalance,
+		publicAddress,
+		withdrawAddress,
+		withdrawAmount,
+		setWithdrawAddress,
+		setWithdrawAmount,
+		transferFlow,
+	} = useAppContext();
 	const { windowHeight } = useAuth();
-	const [withdrawAmount, setWithdrawAmount] = React.useState('');
-	const [withdrawAddress, setWithdrawAddress] = React.useState('');
 
 	// Define header and footer heights
 	const headerHeight = 70;
 	const footerHeight = 80;
 	const contentHeight = windowHeight - headerHeight - footerHeight;
-
-	const handleWithdraw = () => {
-		// Implement withdraw logic here
-		console.log(`Withdrawing ${withdrawAmount} FLOW`);
-	};
 
 	return (
 		<div
@@ -92,8 +94,8 @@ export const EarnPage = () => {
 								/>
 							</div>
 							<Button
-								onClick={handleWithdraw}
-								className="whitespace-nowrap w-full bg-gray-700 hover:bg-gray-800"
+								onClick={() => transferFlow()}
+								className="whitespace-nowrap w-full bg-gray-600 hover:bg-gray-700"
 								variant="ghost"
 							>
 								Withdraw{' '}

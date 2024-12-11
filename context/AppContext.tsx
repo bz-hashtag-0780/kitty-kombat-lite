@@ -29,6 +29,11 @@ type AppContextType = {
 	coinBalance: number;
 	failedTransactionCount: number;
 	FAILURE_THRESHOLD: number;
+	transferFlow: () => void;
+	setWithdrawAmount: Dispatch<SetStateAction<string>>;
+	setWithdrawAddress: Dispatch<SetStateAction<string>>;
+	withdrawAmount: string;
+	withdrawAddress: string;
 };
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -44,6 +49,8 @@ export const AppContextProvider = ({ children }: { children: ReactNode }) => {
 	const isTransactionInProgressRef = React.useRef(false); // Ref for transaction progress
 	const [failedTransactionCount, setFailedTransactionCount] = useState(0); // Track failed transactions
 	const FAILURE_THRESHOLD = 4; // Set a threshold for prompting reconnect
+	const [withdrawAmount, setWithdrawAmount] = useState('');
+	const [withdrawAddress, setWithdrawAddress] = useState('');
 
 	const { magic } = useMagic();
 
@@ -318,6 +325,112 @@ export const AppContextProvider = ({ children }: { children: ReactNode }) => {
 		return () => clearInterval(interval);
 	}, [saveOnchain, totalCount, smartContractBalance]);
 
+	const transferFlow = useCallback(async () => {
+		if (
+			!magic ||
+			!publicAddress ||
+			withdrawAddress === '' ||
+			withdrawAmount === ''
+		)
+			return;
+
+		const id = toast.loading('Starting transfer...');
+
+		try {
+			const transactionId = await fcl.mutate({
+				cadence: `
+                import FungibleToken from 0xf233dcee88fe0abe
+				import FlowToken from 0x1654653399040a61
+
+				transaction(amount: UFix64, to: Address) {
+
+					// The Vault resource that holds the tokens that are being transferred
+					let sentVault: @{FungibleToken.Vault}
+
+					prepare(signer: auth(BorrowValue) &Account) {
+
+						// Get a reference to the signer's stored FlowToken vault
+						let vaultRef = signer.storage.borrow<auth(FungibleToken.Withdraw) &FlowToken.Vault>(from: /storage/flowTokenVault)
+							?? panic("The signer does not store a FlowToken.Vault object at the path /storage/flowTokenVault. The signer must initialize their account with this vault first!")
+
+						// Withdraw tokens from the signer's stored vault
+						self.sentVault <- vaultRef.withdraw(amount: amount)
+					}
+
+					execute {
+
+						// Get the recipient's public account object
+						let recipient = getAccount(to)
+
+						// Get a reference to the recipient's Receiver
+						let receiverRef = recipient.capabilities.borrow<&{FungibleToken.Receiver}>(/public/flowTokenReceiver)
+							?? panic("Could not borrow a Receiver reference to the FlowToken Vault in account "
+								.concat(to.toString()).concat(" at path /public/flowTokenReceiver. Make sure you are sending to an address that has a FlowToken Vault set up properly at the specified path."))
+
+						// Deposit the withdrawn tokens in the recipient's receiver
+						receiverRef.deposit(from: <-self.sentVault)
+					}
+				}
+              `,
+				args: (arg: any, t: any) => [
+					arg(withdrawAmount, t.UFix64),
+					arg(withdrawAddress, t.Address),
+				],
+				proposer: magic.flow.authorization,
+				authorizations: [magic.flow.authorization],
+				payer: magic.flow.authorization,
+				limit: 9999,
+			});
+
+			console.log('Transaction submitted with ID:', transactionId);
+			fcl.tx(transactionId).subscribe((res: any) => {
+				toastStatus(id, res.status);
+
+				console.log(res);
+
+				if (res.status === 4) {
+					// SEALED status
+					console.log('Transaction sealed via subscribe.');
+					toast.update(id, {
+						render: 'Flow successfully transferred!',
+						type: 'success',
+						isLoading: false,
+						autoClose: 2000,
+					});
+					// Delay resetting transaction progress
+					setTimeout(() => {
+						// Update smart contract balance after transaction
+						fetchFlowBalance(publicAddress);
+					}, 2000);
+				}
+			});
+		} catch (error) {
+			console.error('Failed to send transaction:', error);
+			setFailedTransactionCount((prevFailedTransactionCount) => {
+				const newCount = prevFailedTransactionCount + 1;
+				console.log('Failed transaction count:', newCount);
+
+				if (newCount >= FAILURE_THRESHOLD) {
+					toast.update(id, {
+						render: 'Multiple save failures. Please reconnect wallet.',
+						type: 'error',
+						isLoading: false,
+						autoClose: 5000,
+					});
+				} else {
+					toast.update(id, {
+						render: 'Failed to save progress',
+						type: 'error',
+						isLoading: false,
+						autoClose: 2000,
+					});
+				}
+
+				return newCount; // Return the updated count
+			});
+		}
+	}, [magic, publicAddress, fetchFlowBalance]);
+
 	return (
 		<AppContext.Provider
 			value={{
@@ -332,6 +445,11 @@ export const AppContextProvider = ({ children }: { children: ReactNode }) => {
 				coinBalance: smartContractBalance,
 				failedTransactionCount,
 				FAILURE_THRESHOLD,
+				transferFlow,
+				setWithdrawAmount,
+				setWithdrawAddress,
+				withdrawAmount,
+				withdrawAddress,
 			}}
 		>
 			{children}
