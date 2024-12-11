@@ -36,7 +36,7 @@ export const EarnPage = () => {
 				<div className="flex items-center gap-2 text-sm">
 					<Wallet className="w-4 h-4 text-blue-500" />
 					<span className="text-blue-500">
-						{flowBalance} FLOW | {coinBalance} Coins
+						{flowBalance.toFixed(2)} FLOW | {coinBalance} Coins
 					</span>
 				</div>
 			</div>
