@@ -26,7 +26,7 @@ export const PlayPage = () => {
 			<div className="flex-1 flex flex-col items-center justify-center p-4">
 				{/* Clickable cat circle */}
 				<button
-					onClick={() => setCount((prev) => prev + 1)}
+					onClick={() => setCount(1)}
 					className="group relative w-60 h-60 rounded-full transition-all duration-200 active:scale-95"
 				>
 					{/* Outer ring */}

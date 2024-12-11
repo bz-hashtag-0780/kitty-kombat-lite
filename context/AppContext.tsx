@@ -18,7 +18,7 @@ import { toastStatus } from '@/utils/toastStatus';
 
 type AppContextType = {
 	count: number;
-	setCount: Dispatch<SetStateAction<number>>;
+	setCount: (increment: number) => void;
 	flowBalance: number;
 	publicAddress: string | null;
 	showLoginModal: boolean;
@@ -31,15 +31,14 @@ type AppContextType = {
 const AppContext = createContext<AppContextType | undefined>(undefined);
 
 export const AppContextProvider = ({ children }: { children: ReactNode }) => {
-	// Load initial localCount from localStorage
-	const [localCount, setLocalCountState] = useState<number>(() => {
-		const savedCount = localStorage.getItem('localCount');
-		const parsedCount = parseFloat(savedCount || '0'); // Fallback to 0 if invalid
-		return isNaN(parsedCount) ? 0.0 : parsedCount; // Ensure it's a valid number
-	});
-
+	// const [localCount, setLocalCountState] = useState<number>(() => {
+	// 	const savedCount = localStorage.getItem('localCount');
+	// 	const parsedCount = parseFloat(savedCount || '0'); // Fallback to 0 if invalid
+	// 	return isNaN(parsedCount) ? 0.0 : parsedCount; // Ensure it's a valid number
+	// });
+	const [totalCount, setTotalCountState] = useState<number>(0.0);
 	const [smartContractBalance, setSmartContractBalance] =
-		useState<number>(0.0); // Default to 0
+		useState<number>(0.0);
 	const [profitPerHour] = useState(15);
 	const [publicAddress, setPublicAddress] = useState<string | null>(null);
 	const [flowBalance, setFlowBalance] = useState(0);
@@ -48,11 +47,9 @@ export const AppContextProvider = ({ children }: { children: ReactNode }) => {
 
 	const { magic } = useMagic();
 
-	// Persist localCount to localStorage whenever it changes
-	const setLocalCount: Dispatch<SetStateAction<number>> = (newCount) => {
-		console.log('Updating localCount:', newCount); // Debug log
-		setLocalCountState(newCount);
-		localStorage.setItem('localCount', newCount.toString());
+	const persistTotalCount = (newCount: number) => {
+		setTotalCountState(newCount);
+		localStorage.setItem('totalCount', newCount.toString());
 	};
 
 	useEffect(() => {
@@ -122,8 +119,9 @@ export const AppContextProvider = ({ children }: { children: ReactNode }) => {
 				args: (arg: any, t: any) => [arg(address, t.Address)],
 			});
 			console.log('Fetched on-chain balance:', balance); // Debug log
-			setSmartContractBalance(parseFloat(balance));
-			return balance;
+			const parsedBalance = parseFloat(balance);
+			setSmartContractBalance(parsedBalance);
+			return parsedBalance;
 		} catch (error) {
 			console.error('Failed to fetch Coin balance:', error);
 		}
@@ -131,7 +129,32 @@ export const AppContextProvider = ({ children }: { children: ReactNode }) => {
 
 	useEffect(() => {
 		if (publicAddress) {
-			fetchCoins(publicAddress); // Fetch balance on mount
+			(async () => {
+				// Load saved `totalCount` from localStorage
+				const savedTotal = localStorage.getItem('totalCount');
+				const onChainBalance = await fetchCoins(publicAddress);
+
+				if (onChainBalance !== undefined) {
+					if (savedTotal) {
+						const parsedSavedTotal = parseFloat(savedTotal);
+
+						// Validate saved `totalCount` against on-chain balance
+						if (parsedSavedTotal < onChainBalance) {
+							// If saved total is less, use the on-chain balance
+							console.warn(
+								`Local totalCount (${parsedSavedTotal}) is less than on-chain balance (${onChainBalance}). Resetting to on-chain balance.`
+							);
+							persistTotalCount(onChainBalance);
+						} else {
+							// If valid, use the saved total
+							setTotalCountState(parsedSavedTotal);
+						}
+					} else {
+						// No saved total, initialize with on-chain balance
+						persistTotalCount(onChainBalance);
+					}
+				}
+			})();
 		}
 	}, [publicAddress, fetchCoins]);
 
@@ -141,7 +164,7 @@ export const AppContextProvider = ({ children }: { children: ReactNode }) => {
 
 			if (isTransactionInProgressRef.current) {
 				console.warn('Transaction already in progress');
-				alert('Transaction already in progress');
+
 				return;
 			}
 
@@ -193,7 +216,13 @@ export const AppContextProvider = ({ children }: { children: ReactNode }) => {
 						});
 						// Delay resetting transaction progress
 						setTimeout(() => {
-							isTransactionInProgressRef.current = false;
+							// Update smart contract balance after transaction
+							fetchCoins(publicAddress).then(
+								(updatedBalance: any) => {
+									setSmartContractBalance(updatedBalance);
+									isTransactionInProgressRef.current = false;
+								}
+							);
 						}, 2000);
 					}
 				});
@@ -204,7 +233,7 @@ export const AppContextProvider = ({ children }: { children: ReactNode }) => {
 				console.error('Failed to send transaction:', error);
 			}
 		},
-		[magic, publicAddress]
+		[magic, publicAddress, fetchCoins]
 	);
 
 	const saveOnchain = useCallback(async () => {
@@ -222,8 +251,9 @@ export const AppContextProvider = ({ children }: { children: ReactNode }) => {
 			const onChainBalance = await fetchCoins(publicAddress);
 
 			// Calculate the difference between local and on-chain balance
-			const countDiff = localCount + onChainBalance - onChainBalance; // Difference to be synchronized
-			console.log('Local count:', localCount);
+			const countDiff =
+				onChainBalance !== undefined ? totalCount - onChainBalance : 0; // Difference to be synchronized
+			console.log('total count:', totalCount);
 			console.log('On-chain count:', onChainBalance);
 			console.log('Count difference (to save):', countDiff);
 
@@ -236,23 +266,31 @@ export const AppContextProvider = ({ children }: { children: ReactNode }) => {
 		} catch (error) {
 			console.error('Error in saveOnchain:', error);
 		}
-	}, [publicAddress, localCount, addCoins, fetchCoins]);
+	}, [publicAddress, totalCount, addCoins, fetchCoins]);
+
+	const incrementTotalCount = (increment: number) => {
+		const newTotal = totalCount + increment;
+		persistTotalCount(newTotal); // Update and persist
+	};
 
 	useEffect(() => {
+		if (totalCount >= smartContractBalance + 10) {
+			saveOnchain();
+		}
 		const interval = setInterval(() => {
 			if (!isTransactionInProgressRef.current) {
 				saveOnchain();
 			}
-		}, 15000);
+		}, 8000);
 
 		return () => clearInterval(interval);
-	}, [saveOnchain]);
+	}, [saveOnchain, totalCount, smartContractBalance]);
 
 	return (
 		<AppContext.Provider
 			value={{
-				count: (localCount || 0) + (smartContractBalance || 0), // Ensure valid numbers
-				setCount: setLocalCount, // Increment local count
+				count: totalCount, // Unified total count
+				setCount: incrementTotalCount, // Increment total count
 				flowBalance,
 				publicAddress,
 				showLoginModal,
