@@ -224,9 +224,6 @@ export const AppContextProvider = ({ children }: { children: ReactNode }) => {
 						}, 2000);
 					}
 				});
-
-				// Fetch updated balance
-				// await fetchCoins(publicAddress);
 			} catch (error) {
 				console.error('Failed to send transaction:', error);
 			}
