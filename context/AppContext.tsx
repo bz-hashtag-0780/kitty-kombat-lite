@@ -123,6 +123,7 @@ export const AppContextProvider = ({ children }: { children: ReactNode }) => {
 			});
 			console.log('Fetched on-chain balance:', balance); // Debug log
 			setSmartContractBalance(parseFloat(balance));
+			return balance;
 		} catch (error) {
 			console.error('Failed to fetch Coin balance:', error);
 		}
@@ -201,8 +202,6 @@ export const AppContextProvider = ({ children }: { children: ReactNode }) => {
 				// await fetchCoins(publicAddress);
 			} catch (error) {
 				console.error('Failed to send transaction:', error);
-			} finally {
-				isTransactionInProgressRef.current = false;
 			}
 		},
 		[magic, publicAddress]
@@ -218,33 +217,35 @@ export const AppContextProvider = ({ children }: { children: ReactNode }) => {
 			return;
 		}
 
-		console.log('Fetching on-chain balance...');
-		await fetchCoins(publicAddress);
+		try {
+			// Fetch on-chain balance
+			const onChainBalance = await fetchCoins(publicAddress);
 
-		// Calculate the count difference
-		const countDiff = localCount; // Local taps that haven't been saved
-		console.log('Local count:', localCount);
-		console.log('On-chain count:', smartContractBalance);
-		console.log('Count difference (to save):', countDiff);
+			// Calculate the difference between local and on-chain balance
+			const countDiff = localCount - onChainBalance; // Difference to be synchronized
+			console.log('Local count:', localCount);
+			console.log('On-chain count:', onChainBalance);
+			console.log('Count difference (to save):', countDiff);
 
-		if (countDiff > 0) {
-			console.log('Sending coins to on-chain balance...');
-			// Send the difference (max 50 per transaction)
-			const amountToSend = Math.min(countDiff, 50);
-			await addCoins(amountToSend);
+			// Perform transaction if there's a difference
+			if (countDiff > 0) {
+				console.log('Sending coins to on-chain balance...');
+				const amountToSend = Math.min(countDiff, 50); // Maximum per transaction
+				await addCoins(amountToSend);
+			}
+		} catch (error) {
+			console.error('Error in saveOnchain:', error);
 		}
-	}, [publicAddress, localCount, smartContractBalance, addCoins, fetchCoins]);
+	}, [publicAddress, localCount, addCoins, fetchCoins]);
 
-	// Timer-based transaction every 8 seconds
 	useEffect(() => {
-		// const syncWithOnChain = async () => {};
 		const interval = setInterval(() => {
-			saveOnchain();
+			if (!isTransactionInProgressRef.current) {
+				saveOnchain();
+			}
 		}, 15000);
 
-		// const timer = setTimeout(syncWithOnChain, 8000); // 8 seconds
-
-		return () => clearInterval(interval); // Cleanup on unmount
+		return () => clearInterval(interval);
 	}, [saveOnchain]);
 
 	return (
