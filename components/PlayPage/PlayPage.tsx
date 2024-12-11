@@ -6,7 +6,6 @@
 
 import { Coins } from 'lucide-react';
 import { useAppContext } from '@/context/AppContext';
-import SMSOTP from '../magic/auth/SMSOTP';
 
 export const PlayPage = () => {
 	const { count, profitPerHour, setCount } = useAppContext();
@@ -54,7 +53,6 @@ export const PlayPage = () => {
 				</div>
 				<div className="mt-2 text-gray-400">Tap to earn coins!</div>
 			</div>
-			<SMSOTP />
 		</div>
 	);
 };
