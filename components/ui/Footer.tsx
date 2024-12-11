@@ -10,9 +10,7 @@ export const Footer = () => {
 
 	// Function to determine active styles
 	const getActiveStyle = (path: string) => {
-		return pathname === path
-			? 'text-yellow-500 text-shadow'
-			: 'hover:text-white';
+		return pathname === path && 'text-yellow-500 text-shadow';
 	};
 
 	return (
