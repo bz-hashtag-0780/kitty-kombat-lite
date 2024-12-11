@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 
@@ -26,6 +27,7 @@ type AppContextType = {
 	isTransactionInProgress: boolean;
 	profitPerHour: number;
 	coinBalance: number;
+	failedTransactionCount: number;
 };
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -39,6 +41,8 @@ export const AppContextProvider = ({ children }: { children: ReactNode }) => {
 	const [flowBalance, setFlowBalance] = useState(0);
 	const [showLoginModal, setShowLoginModal] = useState(false);
 	const isTransactionInProgressRef = React.useRef(false); // Ref for transaction progress
+	const [failedTransactionCount, setFailedTransactionCount] = useState(0); // Track failed transactions
+	const FAILURE_THRESHOLD = 4; // Set a threshold for prompting reconnect
 
 	const { magic } = useMagic();
 
@@ -210,7 +214,7 @@ export const AppContextProvider = ({ children }: { children: ReactNode }) => {
 							render: 'Progress saved onchain!',
 							type: 'success',
 							isLoading: false,
-							autoClose: 5000,
+							autoClose: 2000,
 						});
 						// Delay resetting transaction progress
 						setTimeout(() => {
@@ -227,11 +231,27 @@ export const AppContextProvider = ({ children }: { children: ReactNode }) => {
 			} catch (error) {
 				console.error('Failed to send transaction:', error);
 				isTransactionInProgressRef.current = false;
-				toast.update(id, {
-					render: 'Failed to save progress',
-					type: 'error',
-					isLoading: false,
-					autoClose: 5000,
+				setFailedTransactionCount((prevFailedTransactionCount) => {
+					const newCount = prevFailedTransactionCount + 1;
+					console.log('Failed transaction count:', newCount);
+
+					if (newCount >= FAILURE_THRESHOLD) {
+						toast.update(id, {
+							render: 'Multiple save failures. Please reconnect wallet.',
+							type: 'error',
+							isLoading: false,
+							autoClose: 5000,
+						});
+					} else {
+						toast.update(id, {
+							render: 'Failed to save progress',
+							type: 'error',
+							isLoading: false,
+							autoClose: 2000,
+						});
+					}
+
+					return newCount; // Return the updated count
 				});
 			}
 		},
@@ -300,6 +320,7 @@ export const AppContextProvider = ({ children }: { children: ReactNode }) => {
 				isTransactionInProgress: isTransactionInProgressRef.current,
 				profitPerHour,
 				coinBalance: smartContractBalance,
+				failedTransactionCount,
 			}}
 		>
 			{children}
