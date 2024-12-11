@@ -293,7 +293,9 @@ export const AppContextProvider = ({ children }: { children: ReactNode }) => {
 			if (countDiff < 0) {
 				console.warn('Local count is less than on-chain balance');
 				// Update local count to match on-chain balance
-				persistTotalCount(onChainBalance);
+				if (onChainBalance !== undefined) {
+					persistTotalCount(onChainBalance);
+				}
 			}
 		} catch (error) {
 			console.error('Error in saveOnchain:', error);
