@@ -33,8 +33,8 @@ export const Footer = () => {
 					<Button
 						variant="ghost"
 						className={`flex-col gap-1 h-auto py-2 ${getActiveStyle(
-							'/play'
-						)} ${getActiveStyle('/')}`}
+							'/'
+						)} ${getActiveStyle('/play')}`}
 					>
 						<Gamepad2 className="w-5 h-5" />
 						<span className="text-xs">Play</span>

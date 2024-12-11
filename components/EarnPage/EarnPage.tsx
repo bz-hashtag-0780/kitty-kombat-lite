@@ -8,6 +8,7 @@ import { useAuth } from '@/context/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/EarnPage/ui/input';
+import { toast } from 'react-toastify';
 
 export const EarnPage = () => {
 	const { coinBalance, flowBalance, publicAddress } = useAppContext();
@@ -41,7 +42,15 @@ export const EarnPage = () => {
 
 			{/* Main content */}
 			<div className="flex-1 flex flex-col items-center justify-center p-4 space-y-6">
-				<Card className="w-full max-w-md bg-gray-900 text-white border-gray-800">
+				<Card
+					className="w-full max-w-md bg-gray-900 text-white border-gray-800 cursor-pointer"
+					onClick={() => {
+						if (publicAddress) {
+							navigator.clipboard.writeText(publicAddress);
+							toast('Address copied to clipboard!');
+						}
+					}}
+				>
 					<CardHeader>
 						<CardTitle>Your Wallet</CardTitle>
 					</CardHeader>
