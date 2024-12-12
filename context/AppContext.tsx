@@ -544,7 +544,7 @@ export const AppContextProvider = ({ children }: { children: ReactNode }) => {
 				console.log('total count:', totalCount);
 				const newTotal = smartContractBalance - price;
 				console.log('new total:', newTotal);
-				persistTotalCount(newTotal); // Deduct the price from total count
+				// Deduct the price from total count
 
 				console.log('Transaction submitted with ID:', transactionId);
 				fcl.tx(transactionId).subscribe((res: any) => {
@@ -567,6 +567,7 @@ export const AppContextProvider = ({ children }: { children: ReactNode }) => {
 							fetchCoins(publicAddress).then(
 								(updatedBalance: any) => {
 									setSmartContractBalance(updatedBalance);
+									persistTotalCount(updatedBalance);
 									isTransactionInProgressRef.current = false;
 								}
 							);
@@ -603,6 +604,10 @@ export const AppContextProvider = ({ children }: { children: ReactNode }) => {
 		},
 		[magic, publicAddress, fetchCoins]
 	);
+
+	//last passive claim
+
+	// claim passive coins
 
 	return (
 		<AppContext.Provider
