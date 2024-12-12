@@ -4,15 +4,7 @@ import React from 'react';
 import { Coins } from 'lucide-react';
 import { useAppContext } from '@/context/AppContext';
 import { useAuth } from '@/context/AuthContext';
-import {
-	Card,
-	CardContent,
-	CardFooter,
-	CardHeader,
-	CardTitle,
-} from '@/components/ui/card';
 
-// Define the structure for an upgrade item
 interface Upgrade {
 	id: string;
 	name: string;
@@ -20,41 +12,27 @@ interface Upgrade {
 	price: number;
 	image: string;
 	level: number;
+	cps: string;
 }
 
-// Sample upgrade data
 const upgrades: Upgrade[] = [
 	{
 		id: '1',
 		name: 'Speed Booster',
-		description: '10%',
+		description: 'Boosts your clicking speed',
 		price: 100,
 		image: '/speed_booster.webp',
 		level: 1,
+		cps: '+0.1',
 	},
 	{
 		id: '2',
 		name: 'Mega Tapper',
-		description: '100%',
+		description: 'Automatically taps for you',
 		price: 250,
 		image: '/mega_tapper.webp',
 		level: 0,
-	},
-	{
-		id: '3',
-		name: 'Speed Booster',
-		description: '10%',
-		price: 100,
-		image: '/speed_booster.webp',
-		level: 1,
-	},
-	{
-		id: '4',
-		name: 'Mega Tapper',
-		description: '100%',
-		price: 250,
-		image: '/mega_tapper.webp',
-		level: 0,
+		cps: '+1.0',
 	},
 ];
 
@@ -62,7 +40,6 @@ export const ShopPage = () => {
 	const { coinBalance } = useAppContext();
 	const { windowHeight } = useAuth();
 
-	// Define header and footer heights
 	const headerHeight = 70;
 	const footerHeight = 80;
 	const contentHeight = windowHeight - headerHeight - footerHeight;
@@ -81,41 +58,45 @@ export const ShopPage = () => {
 			</div>
 
 			{/* Main content */}
-			<div className="flex-1 overflow-y-auto p-4">
-				<div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-4">
-					{upgrades.map((upgrade) => (
-						<Card
-							key={upgrade.id}
-							className="bg-gray-900 text-white border-gray-800 cursor-pointer transition duration-300 ease-in-out transform hover:-translate-y-1 hover:scale-105"
-						>
-							<CardHeader className="pb-2">
-								<CardTitle className="text-lg">
-									{upgrade.name}
-								</CardTitle>
-							</CardHeader>
-							<CardContent className="pb-2">
-								<div className="aspect-square overflow-hidden rounded-md mb-2">
-									<img
-										src={upgrade.image}
-										alt={upgrade.name}
-										className="w-full h-full object-cover"
-									/>
-								</div>
-								<p className="text-sm text-gray-400 text-center">
-									{upgrade.description}
-								</p>
-							</CardContent>
-							<CardFooter className="flex justify-between items-center pt-2">
+			<div className="flex-1 overflow-y-auto p-4 space-y-2">
+				{upgrades.map((upgrade) => (
+					<div
+						key={upgrade.id}
+						className="flex items-center bg-gray-900 rounded-lg p-3 cursor-pointer hover:bg-gray-800 transition-colors duration-200 border border-gray-800"
+					>
+						{/* Left: Image */}
+						<div className="w-16 h-16 rounded-md overflow-hidden flex-shrink-0">
+							<img
+								src={upgrade.image}
+								alt={upgrade.name}
+								className="w-full h-full object-cover"
+							/>
+						</div>
+
+						{/* Center: Name and Price */}
+						<div className="flex-1 px-4">
+							<h3 className="text-lg font-semibold text-white">
+								{upgrade.name}
+							</h3>
+							<div className="flex items-center gap-1">
+								<Coins className="w-4 h-4 text-yellow-500" />
 								<span className="text-yellow-500">
-									{upgrade.price} coins
+									{upgrade.price}
 								</span>
-								<span className="text-blue-400">
-									Level: {upgrade.level}
-								</span>
-							</CardFooter>
-						</Card>
-					))}
-				</div>
+							</div>
+						</div>
+
+						{/* Right: Level and CPS */}
+						<div className="text-right">
+							<div className="text-lg font-bold text-white">
+								Level {upgrade.level}
+							</div>
+							<div className="text-sm text-green-400">
+								{upgrade.cps} cps
+							</div>
+						</div>
+					</div>
+				))}
 			</div>
 		</div>
 	);
