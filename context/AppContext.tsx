@@ -34,6 +34,8 @@ type AppContextType = {
 	setWithdrawAddress: Dispatch<SetStateAction<string>>;
 	withdrawAmount: string;
 	withdrawAddress: string;
+	fetchUpgrades: (address: string) => Promise<any>;
+	purchaseUpgrade: () => void;
 };
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -138,6 +140,7 @@ export const AppContextProvider = ({ children }: { children: ReactNode }) => {
 	}, []);
 
 	useEffect(() => {
+		fetchUpgrades();
 		if (publicAddress) {
 			fetchFlowBalance(publicAddress);
 			(async () => {
@@ -431,6 +434,26 @@ export const AppContextProvider = ({ children }: { children: ReactNode }) => {
 		}
 	}, [magic, publicAddress, fetchFlowBalance]);
 
+	const fetchUpgrades = useCallback(async () => {
+		try {
+			const response = await fcl.query({
+				cadence: `
+                import KittyKombatLite from 0x87535df35d7f64e1
+
+				access(all) fun main(): {String: KittyKombatLite.Upgrade} {
+					return KittyKombatLite.getAvailableUpgrades()
+				}
+            `,
+			});
+			console.log('Upgrades', response);
+			return response;
+		} catch (error) {
+			console.error('Failed to fetch Coin balance:', error);
+		}
+	}, []);
+
+	const purchaseUpgrade = useCallback(async () => {}, []);
+
 	return (
 		<AppContext.Provider
 			value={{
@@ -450,6 +473,8 @@ export const AppContextProvider = ({ children }: { children: ReactNode }) => {
 				setWithdrawAddress,
 				withdrawAmount,
 				withdrawAddress,
+				fetchUpgrades,
+				purchaseUpgrade,
 			}}
 		>
 			{children}
