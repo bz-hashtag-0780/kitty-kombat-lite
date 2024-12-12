@@ -113,7 +113,7 @@ export const PlayPage = () => {
 			</div>
 
 			{/* Main content */}
-			<div className="flex-1 flex flex-col items-center justify-center p-4 overflow-y-auto mt-20">
+			<div className="flex-1 flex flex-col items-center justify-center p-4 overflow-y-auto mt-12">
 				{/* Clickable cat circle */}
 				<button
 					onClick={handleTap}
