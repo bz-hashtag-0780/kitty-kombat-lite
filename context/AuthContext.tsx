@@ -39,6 +39,8 @@ export const AuthContextProvider = ({
 			setWindowHeight(WebApp.viewportStableHeight || window.innerHeight);
 			WebApp.ready();
 
+			WebApp.expand();
+
 			// Set Telegram user data
 			const user = WebApp.initDataUnsafe.user;
 			setUserID(user?.id || null);
