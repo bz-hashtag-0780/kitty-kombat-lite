@@ -538,8 +538,13 @@ export const AppContextProvider = ({ children }: { children: ReactNode }) => {
 					payer: magic.flow.authorization,
 					limit: 9999,
 				});
-
-				persistTotalCount(smartContractBalance - price); // Deduct the price from total count
+				console.log('smart balance:', smartContractBalance);
+				console.log('price:', price);
+				console.log('new balance:', smartContractBalance - price);
+				console.log('total count:', totalCount);
+				const newTotal = smartContractBalance - price;
+				console.log('new total:', newTotal);
+				persistTotalCount(newTotal); // Deduct the price from total count
 
 				console.log('Transaction submitted with ID:', transactionId);
 				fcl.tx(transactionId).subscribe((res: any) => {
