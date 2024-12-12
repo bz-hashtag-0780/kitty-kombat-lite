@@ -1,7 +1,6 @@
-/* eslint-disable @next/next/no-img-element */
 'use client';
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Coins } from 'lucide-react';
 import { useAppContext } from '@/context/AppContext';
 import { useAuth } from '@/context/AuthContext';
@@ -23,15 +22,17 @@ declare global {
 	}
 }
 
+interface CoinPopup {
+	id: number;
+	x: number;
+	y: number;
+}
+
 const vibrate = () => {
 	if (navigator.vibrate) {
-		// Create a pattern similar to catching a shiny Pokémon:
-		// 5 short vibrations with brief pauses in between
 		navigator.vibrate([50, 50, 50, 50, 50, 50, 50, 50, 50, 50]);
 	}
-	// Telegram Web App vibration
 	if (window.Telegram?.WebApp?.HapticFeedback) {
-		// Use a combination of impacts and notification to create a unique feel
 		window.Telegram.WebApp.HapticFeedback.impactOccurred('medium');
 		setTimeout(() => {
 			if (window.Telegram?.WebApp?.HapticFeedback) {
@@ -48,14 +49,66 @@ const vibrate = () => {
 	}
 };
 
+const CoinSVG = () => (
+	<svg
+		width="24"
+		height="24"
+		viewBox="0 0 24 24"
+		fill="none"
+		xmlns="http://www.w3.org/2000/svg"
+	>
+		<circle
+			cx="12"
+			cy="12"
+			r="11"
+			fill="#FFD700"
+			stroke="#FFA500"
+			strokeWidth="2"
+		/>
+		<text
+			x="50%"
+			y="50%"
+			dominantBaseline="middle"
+			textAnchor="middle"
+			fontSize="14"
+			fontWeight="bold"
+			fill="#FFA500"
+		>
+			$
+		</text>
+	</svg>
+);
+
 export const PlayPage = () => {
 	const { count, profitPerHour, setCount } = useAppContext();
 	const { windowHeight } = useAuth();
+	const [coinPopups, setCoinPopups] = useState<CoinPopup[]>([]);
 
-	// Define header and footer heights
 	const headerHeight = 70;
 	const footerHeight = 80;
 	const contentHeight = windowHeight - headerHeight - footerHeight;
+
+	const handleTap = (event: React.MouseEvent<HTMLButtonElement>) => {
+		setCount(1);
+		vibrate();
+
+		const buttonRect = event.currentTarget.getBoundingClientRect();
+		const newCoins = Array.from({ length: 5 }, (_, index) => ({
+			id: Date.now() + index,
+			x: event.clientX - buttonRect.left + (Math.random() * 40 - 20),
+			y: event.clientY - buttonRect.top + (Math.random() * 40 - 20),
+		}));
+
+		setCoinPopups((prevPopups) => [...prevPopups, ...newCoins]);
+	};
+
+	useEffect(() => {
+		const timer = setTimeout(() => {
+			setCoinPopups((prevPopups) => prevPopups.slice(5));
+		}, 1000);
+
+		return () => clearTimeout(timer);
+	}, [coinPopups]);
 
 	return (
 		<div
@@ -74,15 +127,12 @@ export const PlayPage = () => {
 
 			{/* Main content */}
 			<div
-				className="flex-1 flex flex-col items-center justify-center p-4"
+				className="flex-1 flex flex-col items-center justify-center p-4 relative"
 				style={{ height: `${contentHeight}px` }}
 			>
 				{/* Clickable cat circle */}
 				<button
-					onClick={() => {
-						setCount(1);
-						vibrate();
-					}}
+					onClick={handleTap}
 					className="group relative w-60 h-60 rounded-full transition-all duration-200 active:scale-95"
 				>
 					{/* Outer ring */}
@@ -101,6 +151,17 @@ export const PlayPage = () => {
 							/>
 						</div>
 					</div>
+
+					{/* Coin popups */}
+					{coinPopups.map((coin) => (
+						<div
+							key={coin.id}
+							className="absolute w-6 h-6 animate-coin-popup"
+							style={{ left: `${coin.x}px`, top: `${coin.y}px` }}
+						>
+							<CoinSVG />
+						</div>
+					))}
 				</button>
 
 				{/* Counter */}
