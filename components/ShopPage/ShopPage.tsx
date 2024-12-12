@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 
 import React from 'react';
@@ -5,39 +6,39 @@ import { Coins } from 'lucide-react';
 import { useAppContext } from '@/context/AppContext';
 import { useAuth } from '@/context/AuthContext';
 
-interface Upgrade {
-	id: string;
-	name: string;
-	description: string;
-	price: number;
-	image: string;
-	level: number;
-	cps: string;
-}
+// interface Upgrade {
+// 	id: string;
+// 	name: string;
+// 	description: string;
+// 	price: number;
+// 	image: string;
+// 	level: number;
+// 	cps: string;
+// }
 
-const upgrades: Upgrade[] = [
-	{
-		id: '1',
-		name: 'Speed Booster',
-		description: 'Boosts your clicking speed',
-		price: 100,
-		image: '/speed_booster.webp',
-		level: 1,
-		cps: '+0.1',
-	},
-	{
-		id: '2',
-		name: 'Mega Tapper',
-		description: 'Automatically taps for you',
-		price: 250,
-		image: '/mega_tapper.webp',
-		level: 0,
-		cps: '+1.0',
-	},
-];
+// const upgrades: Upgrade[] = [
+// 	{
+// 		id: '1',
+// 		name: 'Speed Booster',
+// 		description: 'Boosts your clicking speed',
+// 		price: 100,
+// 		image: '/speed_booster.webp',
+// 		level: 1,
+// 		cps: '+0.1',
+// 	},
+// 	{
+// 		id: '2',
+// 		name: 'Mega Tapper',
+// 		description: 'Automatically taps for you',
+// 		price: 250,
+// 		image: '/mega_tapper.webp',
+// 		level: 0,
+// 		cps: '+1.0',
+// 	},
+// ];
 
 export const ShopPage = () => {
-	const { coinBalance } = useAppContext();
+	const { coinBalance, upgrades } = useAppContext();
 	const { windowHeight } = useAuth();
 
 	const headerHeight = 70;
@@ -59,18 +60,18 @@ export const ShopPage = () => {
 
 			{/* Main content */}
 			<div className="flex-1 overflow-y-auto p-4 space-y-2">
-				{upgrades.map((upgrade) => (
+				{upgrades.map((upgrade: any) => (
 					<div
 						key={upgrade.id}
 						className="flex items-center bg-gray-900 rounded-lg p-3 cursor-pointer hover:bg-gray-800 transition-colors duration-200 border border-gray-800"
 					>
 						{/* Left: Image */}
 						<div className="w-16 h-16 rounded-md overflow-hidden flex-shrink-0">
-							<img
+							{/* <img
 								src={upgrade.image}
 								alt={upgrade.name}
 								className="w-full h-full object-cover"
-							/>
+							/> */}
 						</div>
 
 						{/* Center: Name and Price */}
@@ -92,7 +93,7 @@ export const ShopPage = () => {
 								Level {upgrade.level}
 							</div>
 							<div className="text-sm text-green-400">
-								{upgrade.cps} cps
+								Multiplier: {upgrade.multiplier}x
 							</div>
 						</div>
 					</div>

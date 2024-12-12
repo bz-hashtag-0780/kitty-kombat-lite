@@ -34,8 +34,9 @@ type AppContextType = {
 	setWithdrawAddress: Dispatch<SetStateAction<string>>;
 	withdrawAmount: string;
 	withdrawAddress: string;
-	fetchUpgrades: (address: string) => Promise<any>;
+	fetchUpgrades: () => Promise<any>;
 	purchaseUpgrade: () => void;
+	upgrades: any;
 };
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -53,6 +54,7 @@ export const AppContextProvider = ({ children }: { children: ReactNode }) => {
 	const FAILURE_THRESHOLD = 4; // Set a threshold for prompting reconnect
 	const [withdrawAmount, setWithdrawAmount] = useState('');
 	const [withdrawAddress, setWithdrawAddress] = useState('');
+	const [upgrades, setUpgrades] = useState<any>([]);
 
 	const { magic } = useMagic();
 
@@ -446,6 +448,16 @@ export const AppContextProvider = ({ children }: { children: ReactNode }) => {
             `,
 			});
 			console.log('Upgrades', response);
+			const formattedUpgrades = Object.entries(response).map(
+				([key, value]: [string, any]) => ({
+					id: key,
+					name: value.name,
+					description: value.description,
+					price: parseFloat(value.cost),
+					multiplier: value.multiplier,
+				})
+			);
+			setUpgrades(formattedUpgrades);
 			return response;
 		} catch (error) {
 			console.error('Failed to fetch Coin balance:', error);
@@ -475,6 +487,7 @@ export const AppContextProvider = ({ children }: { children: ReactNode }) => {
 				withdrawAddress,
 				fetchUpgrades,
 				purchaseUpgrade,
+				upgrades,
 			}}
 		>
 			{children}
