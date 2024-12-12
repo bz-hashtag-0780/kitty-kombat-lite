@@ -1,5 +1,5 @@
-import { PlayPage } from '@/components/PlayPage/PlayPage';
+import { ShopPage } from '@/components/ShopPage/ShopPage';
 
 export default function Shop() {
-	return <PlayPage />;
+	return <ShopPage />;
 }
