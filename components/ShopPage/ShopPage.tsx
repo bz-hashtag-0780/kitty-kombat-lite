@@ -91,9 +91,10 @@ export const ShopPage = () => {
 					<div
 						key={upgrade.id}
 						className="flex items-center bg-gray-900 rounded-lg p-3 cursor-pointer hover:bg-gray-800 transition-colors duration-200 border border-gray-800"
-						onClick={() =>
-							purchaseUpgrade(upgrade.name, upgrade.price)
-						}
+						onClick={(e: any) => {
+							e.stopPropagation(); // Prevents parent containers from capturing the click event
+							purchaseUpgrade(upgrade.name, upgrade.price);
+						}}
 					>
 						{/* Left: Image */}
 						<div className="w-16 h-16 rounded-md overflow-hidden flex-shrink-0">
