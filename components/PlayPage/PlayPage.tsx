@@ -103,14 +103,6 @@ export const PlayPage = () => {
 	};
 
 	useEffect(() => {
-		const preventDefault = (e: Event) => e.preventDefault();
-		document.addEventListener('touchmove', preventDefault, {
-			passive: false,
-		});
-		return () => document.removeEventListener('touchmove', preventDefault);
-	}, []);
-
-	useEffect(() => {
 		const timer = setTimeout(() => {
 			setCoinPopups((prevPopups) => prevPopups.slice(5));
 		}, 1000);
@@ -120,7 +112,7 @@ export const PlayPage = () => {
 
 	return (
 		<div
-			className="flex flex-col bg-gray-950 select-none"
+			className="flex flex-col bg-gray-950"
 			style={{ height: `${contentHeight}px` }}
 		>
 			{/* Profit per hour */}
@@ -141,8 +133,7 @@ export const PlayPage = () => {
 				{/* Clickable cat circle */}
 				<button
 					onClick={handleTap}
-					className="group relative w-60 h-60 rounded-full transition-all duration-100 active:scale-95"
-					style={{ touchAction: 'manipulation' }}
+					className="group relative w-60 h-60 rounded-full transition-all duration-200 active:scale-95"
 				>
 					{/* Outer ring */}
 					<div className="absolute inset-0 rounded-full bg-gradient-to-b from-gray-800 to-gray-900 p-1">
@@ -156,7 +147,7 @@ export const PlayPage = () => {
 							<img
 								src="/babycat.png"
 								alt="cat"
-								className="relative w-full h-full object-contain transition-transform duration-100 group-hover:scale-105 group-active:scale-95"
+								className="relative w-full h-full object-contain group-hover:scale-105 transition-transform duration-200"
 							/>
 						</div>
 					</div>
