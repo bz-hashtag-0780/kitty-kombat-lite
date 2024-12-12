@@ -3,7 +3,6 @@
 import React, { useState, useEffect } from 'react';
 import { Coins, Clock } from 'lucide-react';
 import { useAppContext } from '@/context/AppContext';
-import { useAuth } from '@/context/AuthContext';
 
 declare global {
 	interface Window {
@@ -51,13 +50,8 @@ export const PlayPage = () => {
 		setCount,
 		claimPassiveCoins,
 	} = useAppContext();
-	const { windowHeight } = useAuth();
 	const [timeUntilNextClaim, setTimeUntilNextClaim] = useState('');
 	const [canClaim, setCanClaim] = useState(false);
-
-	const headerHeight = 70;
-	const footerHeight = 80;
-	const contentHeight = windowHeight - headerHeight - footerHeight;
 
 	const handleTap = () => {
 		setCount(1);

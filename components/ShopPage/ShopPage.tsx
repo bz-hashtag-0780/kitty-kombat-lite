@@ -5,7 +5,6 @@
 import React from 'react';
 import { Coins } from 'lucide-react';
 import { useAppContext } from '@/context/AppContext';
-import { useAuth } from '@/context/AuthContext';
 
 // interface Upgrade {
 // 	id: string;
@@ -60,11 +59,6 @@ const formatMultiplier = (multiplier: string | number) => {
 export const ShopPage = () => {
 	const { coinBalance, upgrades, playerUpgrades, purchaseUpgrade } =
 		useAppContext();
-	const { windowHeight } = useAuth();
-
-	const headerHeight = 70;
-	const footerHeight = 80;
-	const contentHeight = windowHeight - headerHeight - footerHeight;
 
 	// Combine upgrades with player levels
 	const enrichedUpgrades = upgrades.map((upgrade: any) => ({
