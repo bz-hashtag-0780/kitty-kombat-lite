@@ -500,8 +500,7 @@ export const AppContextProvider = ({ children }: { children: ReactNode }) => {
 
 	const purchaseUpgrade = useCallback(
 		async (upgradeName: string, price: number) => {
-			console.log('clicked purchase upgrade');
-			if (!magic || !publicAddress || smartContractBalance <= 0) return;
+			if (!magic || !publicAddress) return;
 
 			if (isTransactionInProgressRef.current) {
 				console.warn('Transaction already in progress');
