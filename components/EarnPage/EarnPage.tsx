@@ -3,7 +3,7 @@
 import React from 'react';
 import { Wallet, ArrowUpRight, Copy } from 'lucide-react';
 import { useAppContext } from '@/context/AppContext';
-import { useAuth } from '@/context/AuthContext';
+// import { useAuth } from '@/context/AuthContext';
 import { Button } from '@/components/EarnPage/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/EarnPage/ui/input';
@@ -23,7 +23,7 @@ export const EarnPage = () => {
 		transferFlow,
 		setShowLoginModal,
 	} = useAppContext();
-	const { windowHeight } = useAuth();
+	// const { windowHeight } = useAuth();
 
 	return (
 		<div className="flex flex-col min-h-screen bg-gray-950">
