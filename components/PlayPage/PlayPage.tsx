@@ -36,6 +36,14 @@ export const PlayPage = () => {
 		// Telegram Web App vibration
 		if (window.Telegram?.WebApp?.HapticFeedback) {
 			window.Telegram.WebApp.HapticFeedback.impactOccurred('medium');
+
+			setTimeout(() => {
+				if (window.Telegram?.WebApp?.HapticFeedback) {
+					window.Telegram.WebApp.HapticFeedback.impactOccurred(
+						'medium'
+					);
+				}
+			}, 100);
 		}
 	};
 
