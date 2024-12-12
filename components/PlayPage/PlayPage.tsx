@@ -93,7 +93,7 @@ export const PlayPage = () => {
 	};
 
 	return (
-		<div className="flex flex-col h-full bg-gray-950 select-none">
+		<div className="flex flex-col h-screen bg-gray-950 select-none">
 			{/* Passive earnings banner */}
 			<div className="flex justify-between items-center p-2 bg-gradient-to-r from-yellow-600/20 to-yellow-500/20">
 				<div className="flex items-center gap-2 text-sm">
@@ -117,7 +117,7 @@ export const PlayPage = () => {
 				{/* Clickable cat circle */}
 				<button
 					onClick={handleTap}
-					className="group relative w-60 h-60 rounded-full transition-all duration-200 active:scale-95"
+					className="group relative w-80 h-80 rounded-full transition-all duration-200 active:scale-95"
 				>
 					{/* Outer ring */}
 					<div className="absolute inset-0 rounded-full bg-gradient-to-b from-gray-800 to-gray-900 p-1">
