@@ -1,11 +1,9 @@
-/* eslint-disable @next/next/no-img-element */
 'use client';
 
 import React from 'react';
 import { Coins } from 'lucide-react';
 import { useAppContext } from '@/context/AppContext';
 import { useAuth } from '@/context/AuthContext';
-import { Button } from '@/components/ui/button';
 import {
 	Card,
 	CardContent,
@@ -21,6 +19,7 @@ interface Upgrade {
 	description: string;
 	price: number;
 	image: string;
+	level: number;
 }
 
 // Sample upgrade data
@@ -31,6 +30,7 @@ const upgrades: Upgrade[] = [
 		description: '10%',
 		price: 100,
 		image: '/speed_booster.webp',
+		level: 1,
 	},
 	{
 		id: '2',
@@ -38,6 +38,7 @@ const upgrades: Upgrade[] = [
 		description: '100%',
 		price: 250,
 		image: '/mega_tapper.webp',
+		level: 0,
 	},
 ];
 
@@ -49,15 +50,6 @@ export const ShopPage = () => {
 	const headerHeight = 70;
 	const footerHeight = 80;
 	const contentHeight = windowHeight - headerHeight - footerHeight;
-
-	const handleBuyUpgrade = (upgrade: Upgrade) => {
-		if (coinBalance >= upgrade.price) {
-			//   buyUpgrade(upgrade.id, upgrade.price);
-		} else {
-			// You might want to show a toast or alert here
-			console.log('Not enough coins to buy this upgrade!');
-		}
-	};
 
 	return (
 		<div
@@ -78,31 +70,32 @@ export const ShopPage = () => {
 					{upgrades.map((upgrade) => (
 						<Card
 							key={upgrade.id}
-							className="bg-gray-900 text-white border-gray-800"
+							className="bg-gray-900 text-white border-gray-800 cursor-pointer"
 						>
-							<CardHeader>
-								<CardTitle>{upgrade.name}</CardTitle>
+							<CardHeader className="pb-2">
+								<CardTitle className="text-lg">
+									{upgrade.name}
+								</CardTitle>
 							</CardHeader>
-							<CardContent>
-								<img
-									src={upgrade.image}
-									alt={upgrade.name}
-									className="w-full object-cover rounded-md mb-2"
-								/>
-								<p className="text-sm text-gray-400">
+							<CardContent className="pb-2">
+								<div className="aspect-square overflow-hidden rounded-md mb-2">
+									<img
+										src={upgrade.image}
+										alt={upgrade.name}
+										className="w-full h-full object-cover"
+									/>
+								</div>
+								<p className="text-sm text-gray-400 text-center">
 									{upgrade.description}
 								</p>
 							</CardContent>
-							<CardFooter className="flex justify-between items-center">
+							<CardFooter className="flex justify-between items-center pt-2">
 								<span className="text-yellow-500">
 									{upgrade.price} coins
 								</span>
-								<Button
-									onClick={() => handleBuyUpgrade(upgrade)}
-									disabled={coinBalance < upgrade.price}
-								>
-									Buy
-								</Button>
+								<span className="text-blue-400">
+									Level: {upgrade.level}
+								</span>
 							</CardFooter>
 						</Card>
 					))}
