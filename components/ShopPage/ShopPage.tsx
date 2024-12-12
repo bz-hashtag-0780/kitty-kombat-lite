@@ -70,7 +70,7 @@ export const ShopPage = () => {
 					{upgrades.map((upgrade) => (
 						<Card
 							key={upgrade.id}
-							className="bg-gray-900 text-white border-gray-800 cursor-pointer"
+							className="bg-gray-900 text-white border-gray-800 cursor-pointer transition duration-300 ease-in-out transform hover:-translate-y-1 hover:scale-105"
 						>
 							<CardHeader className="pb-2">
 								<CardTitle className="text-lg">
