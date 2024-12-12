@@ -25,7 +25,6 @@ type AppContextType = {
 	showLoginModal: boolean;
 	setShowLoginModal: Dispatch<SetStateAction<boolean>>;
 	isTransactionInProgress: boolean;
-	profitPerHour: number;
 	coinBalance: number;
 	failedTransactionCount: number;
 	FAILURE_THRESHOLD: number;
@@ -49,7 +48,6 @@ export const AppContextProvider = ({ children }: { children: ReactNode }) => {
 	const [totalCount, setTotalCountState] = useState<number>(0.0);
 	const [smartContractBalance, setSmartContractBalance] =
 		useState<number>(0.0);
-	const [profitPerHour] = useState(15);
 	const [publicAddress, setPublicAddress] = useState<string | null>(null);
 	const [flowBalance, setFlowBalance] = useState(0);
 	const [showLoginModal, setShowLoginModal] = useState(false);
@@ -775,7 +773,6 @@ export const AppContextProvider = ({ children }: { children: ReactNode }) => {
 				showLoginModal,
 				setShowLoginModal,
 				isTransactionInProgress: isTransactionInProgressRef.current,
-				profitPerHour,
 				coinBalance: smartContractBalance,
 				failedTransactionCount,
 				FAILURE_THRESHOLD,
