@@ -37,6 +37,25 @@ import { useAuth } from '@/context/AuthContext';
 // 	},
 // ];
 
+const imageMapping = [
+	{ name: 'Speed Booster', image: '/speed_booster.webp' },
+	{ name: 'Mega Tapper', image: '/mega_tapper.webp' },
+	// Add more mappings as needed
+];
+
+// Helper function to get the image URL for a given upgrade name
+const getImageForUpgrade = (name: string) => {
+	const mapping = imageMapping.find((item) => item.name === name);
+	return mapping ? mapping.image : '/default_upgrade.webp'; // Fallback to a default image
+};
+
+// Helper function to format multiplier
+const formatMultiplier = (multiplier: string | number) => {
+	// Convert to a number and format to a maximum of one decimal place
+	const num = parseFloat(multiplier as string);
+	return `${num % 1 === 0 ? num : num.toFixed(1)}x`;
+};
+
 export const ShopPage = () => {
 	const { coinBalance, upgrades } = useAppContext();
 	const { windowHeight } = useAuth();
@@ -67,11 +86,11 @@ export const ShopPage = () => {
 					>
 						{/* Left: Image */}
 						<div className="w-16 h-16 rounded-md overflow-hidden flex-shrink-0">
-							{/* <img
-								src={upgrade.image}
+							<img
+								src={getImageForUpgrade(upgrade.name)}
 								alt={upgrade.name}
 								className="w-full h-full object-cover"
-							/> */}
+							/>
 						</div>
 
 						{/* Center: Name and Price */}
@@ -79,6 +98,9 @@ export const ShopPage = () => {
 							<h3 className="text-lg font-semibold text-white">
 								{upgrade.name}
 							</h3>
+							<p className="text-sm text-gray-400">
+								{upgrade.description}
+							</p>
 							<div className="flex items-center gap-1">
 								<Coins className="w-4 h-4 text-yellow-500" />
 								<span className="text-yellow-500">
@@ -93,7 +115,8 @@ export const ShopPage = () => {
 								Level {upgrade.level}
 							</div>
 							<div className="text-sm text-green-400">
-								Multiplier: {upgrade.multiplier}x
+								Multiplier:{' '}
+								{formatMultiplier(upgrade.multiplier)}
 							</div>
 						</div>
 					</div>
