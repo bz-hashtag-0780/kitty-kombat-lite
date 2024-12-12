@@ -13,10 +13,10 @@ declare global {
 					impactOccurred: (
 						style: 'light' | 'medium' | 'heavy' | 'rigid' | 'soft'
 					) => void;
+					notificationOccurred: (
+						type: 'error' | 'success' | 'warning'
+					) => void;
 				};
-				notificationOccurred: (
-					type: 'error' | 'success' | 'warning'
-				) => void;
 			};
 		};
 	}
