@@ -765,8 +765,6 @@ export const AppContextProvider = ({ children }: { children: ReactNode }) => {
 		}
 	}, [magic, publicAddress, fetchCoins]);
 
-	// claim passive coins
-
 	return (
 		<AppContext.Provider
 			value={{

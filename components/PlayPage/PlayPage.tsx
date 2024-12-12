@@ -1,7 +1,7 @@
 'use client';
 
-import React from 'react';
-import { Coins } from 'lucide-react';
+import React, { useState, useEffect, useCallback } from 'react';
+import { Coins, Clock } from 'lucide-react';
 import { useAppContext } from '@/context/AppContext';
 import { useAuth } from '@/context/AuthContext';
 
@@ -22,45 +22,102 @@ declare global {
 	}
 }
 
+const vibrate = () => {
+	if (navigator.vibrate) {
+		navigator.vibrate([50, 50, 50, 50, 50, 50, 50, 50, 50, 50]);
+	}
+	if (window.Telegram?.WebApp?.HapticFeedback) {
+		window.Telegram.WebApp.HapticFeedback.impactOccurred('medium');
+		setTimeout(() => {
+			if (window.Telegram?.WebApp?.HapticFeedback) {
+				window.Telegram.WebApp.HapticFeedback.impactOccurred('medium');
+			}
+		}, 100);
+		setTimeout(() => {
+			if (window.Telegram?.WebApp?.HapticFeedback) {
+				window.Telegram.WebApp.HapticFeedback.notificationOccurred(
+					'success'
+				);
+			}
+		}, 200);
+	}
+};
+
 export const PlayPage = () => {
-	const { count, profitPerHour, setCount } = useAppContext();
+	const {
+		count,
+		passiveEarnings,
+		lastClaimTimestamp,
+		setCount,
+		claimPassiveCoins,
+		playerUpgrades,
+		upgrades,
+	} = useAppContext();
 	const { windowHeight } = useAuth();
+	const [timeUntilNextClaim, setTimeUntilNextClaim] = useState('');
+	const [canClaim, setCanClaim] = useState(false);
 
 	const headerHeight = 70;
 	const footerHeight = 80;
 	const contentHeight = windowHeight - headerHeight - footerHeight;
 
-	const vibrate = () => {
-		if (navigator.vibrate) {
-			// Create a pattern similar to catching a shiny Pokémon:
-			// 5 short vibrations with brief pauses in between
-			navigator.vibrate([50, 50, 50, 50, 50, 50, 50, 50, 50, 50]);
-		}
-		// Telegram Web App vibration
-		if (window.Telegram?.WebApp?.HapticFeedback) {
-			window.Telegram.WebApp.HapticFeedback.impactOccurred('medium');
-
-			setTimeout(() => {
-				if (window.Telegram?.WebApp?.HapticFeedback) {
-					window.Telegram.WebApp.HapticFeedback.impactOccurred(
-						'medium'
-					);
-				}
-			}, 100);
-
-			setTimeout(() => {
-				if (window.Telegram?.WebApp?.HapticFeedback) {
-					window.Telegram.WebApp.HapticFeedback.notificationOccurred(
-						'success'
-					);
-				}
-			}, 200);
-		}
-	};
-
 	const handleTap = () => {
 		setCount(1);
 		vibrate();
+	};
+
+	const calculatePassiveEarnings = useCallback(() => {
+		let totalMultiplier = 1.0;
+		for (const [upgradeName, count] of Object.entries(playerUpgrades) as [
+			string,
+			number
+		][]) {
+			const upgrade = upgrades.find((u: any) => u.id === upgradeName);
+			if (upgrade) {
+				totalMultiplier += count * (upgrade.multiplier - 1.0);
+			}
+		}
+		return 10.0 * totalMultiplier;
+	}, [playerUpgrades, upgrades]);
+
+	useEffect(() => {
+		const updateClaimTimer = () => {
+			const now = Date.now() / 1000; // Current time in seconds
+			const nextClaimTime = Math.floor(lastClaimTimestamp) + 3600; // 1 hour cooldown
+			console.log('Last claim timestamp:', lastClaimTimestamp);
+			console.log('Next claim time:', nextClaimTime);
+			const timeLeft = Math.max(0, nextClaimTime - now);
+
+			if (timeLeft > 0) {
+				const minutes = Math.floor(timeLeft / 60);
+				const seconds = Math.floor(timeLeft % 60);
+				setTimeUntilNextClaim(
+					`${minutes}:${seconds.toString().padStart(2, '0')}`
+				);
+				setCanClaim(false);
+			} else {
+				setTimeUntilNextClaim('Claim now!');
+				setCanClaim(true);
+			}
+		};
+
+		updateClaimTimer();
+		const interval = setInterval(updateClaimTimer, 1000);
+		return () => clearInterval(interval);
+	}, [lastClaimTimestamp]);
+
+	useEffect(() => {
+		console.log('Last claim timestamp:', lastClaimTimestamp);
+	}, [lastClaimTimestamp]);
+
+	const currentPassiveEarnings = calculatePassiveEarnings();
+
+	const handleClaim = () => {
+		if (canClaim) {
+			claimPassiveCoins();
+			setCanClaim(false);
+			setTimeUntilNextClaim('59:59'); // Set to max time immediately after claim
+		}
 	};
 
 	return (
@@ -68,14 +125,22 @@ export const PlayPage = () => {
 			className="flex flex-col bg-gray-950 select-none"
 			style={{ height: `${contentHeight}px` }}
 		>
-			{/* Profit per hour */}
-			<div className="flex justify-center p-2 bg-gradient-to-r from-yellow-600/20 to-yellow-500/20">
+			{/* Passive earnings banner */}
+			<div className="flex justify-between items-center p-2 bg-gradient-to-r from-yellow-600/20 to-yellow-500/20">
 				<div className="flex items-center gap-2 text-sm">
 					<Coins className="w-4 h-4 text-yellow-500" />
 					<span className="text-yellow-500">
-						{profitPerHour} coins/hour
+						{currentPassiveEarnings.toFixed(2)} coins/hour
 					</span>
 				</div>
+				<button
+					onClick={handleClaim}
+					disabled={!canClaim}
+					className="flex items-center gap-2 text-sm bg-yellow-500 text-gray-900 px-2 py-1 rounded-full disabled:opacity-50"
+				>
+					<Clock className="w-4 h-4" />
+					{timeUntilNextClaim}
+				</button>
 			</div>
 
 			{/* Main content */}
