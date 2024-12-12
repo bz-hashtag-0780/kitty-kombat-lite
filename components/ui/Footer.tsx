@@ -13,7 +13,7 @@ export const Footer = () => {
 	};
 
 	return (
-		<div className="border-t border-gray-800 bg-gray-900 text-white h-20">
+		<div className="border-t border-gray-800 bg-gray-900 text-white h-26">
 			<div className="flex justify-around p-4">
 				<Link
 					href="/shop"
