@@ -19,7 +19,7 @@ export function LogOutButton() {
 		} catch (e) {
 			console.error('Logout error:', e);
 		}
-	}, []);
+	}, [magic, setToken]);
 	return (
 		<Button
 			variant="outline"

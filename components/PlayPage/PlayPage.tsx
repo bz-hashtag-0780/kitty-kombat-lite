@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Coins, Clock } from 'lucide-react';
 import { useAppContext } from '@/context/AppContext';
 import { useAuth } from '@/context/AuthContext';
@@ -50,8 +50,6 @@ export const PlayPage = () => {
 		lastClaimTimestamp,
 		setCount,
 		claimPassiveCoins,
-		playerUpgrades,
-		upgrades,
 	} = useAppContext();
 	const { windowHeight } = useAuth();
 	const [timeUntilNextClaim, setTimeUntilNextClaim] = useState('');
@@ -65,20 +63,6 @@ export const PlayPage = () => {
 		setCount(1);
 		vibrate();
 	};
-
-	const calculatePassiveEarnings = useCallback(() => {
-		let totalMultiplier = 1.0;
-		for (const [upgradeName, count] of Object.entries(playerUpgrades) as [
-			string,
-			number
-		][]) {
-			const upgrade = upgrades.find((u: any) => u.id === upgradeName);
-			if (upgrade) {
-				totalMultiplier += count * (upgrade.multiplier - 1.0);
-			}
-		}
-		return 10.0 * totalMultiplier;
-	}, [playerUpgrades, upgrades]);
 
 	useEffect(() => {
 		const updateClaimTimer = () => {
@@ -106,12 +90,6 @@ export const PlayPage = () => {
 		return () => clearInterval(interval);
 	}, [lastClaimTimestamp]);
 
-	useEffect(() => {
-		console.log('Last claim timestamp:', lastClaimTimestamp);
-	}, [lastClaimTimestamp]);
-
-	const currentPassiveEarnings = calculatePassiveEarnings();
-
 	const handleClaim = () => {
 		if (canClaim) {
 			claimPassiveCoins();
@@ -130,7 +108,7 @@ export const PlayPage = () => {
 				<div className="flex items-center gap-2 text-sm">
 					<Coins className="w-4 h-4 text-yellow-500" />
 					<span className="text-yellow-500">
-						{currentPassiveEarnings.toFixed(2)} coins/hour
+						{passiveEarnings.toFixed(2)} coins/hour
 					</span>
 				</div>
 				<button
