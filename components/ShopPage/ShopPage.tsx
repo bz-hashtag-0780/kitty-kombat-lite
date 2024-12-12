@@ -27,31 +27,17 @@ interface Upgrade {
 const upgrades: Upgrade[] = [
 	{
 		id: '1',
-		name: 'Super Clicker',
-		description: 'Doubles your click power',
+		name: 'Speed Booster',
+		description: '10%',
 		price: 100,
-		image: '/upgrades/super-clicker.png',
+		image: '/speed_booster.webp',
 	},
 	{
 		id: '2',
-		name: 'Auto Clicker',
-		description: 'Clicks for you every 5 seconds',
+		name: 'Mega Tapper',
+		description: '100%',
 		price: 250,
-		image: '/upgrades/auto-clicker.png',
-	},
-	{
-		id: '3',
-		name: 'Golden Paw',
-		description: 'Increases coin drops by 50%',
-		price: 500,
-		image: '/upgrades/golden-paw.png',
-	},
-	{
-		id: '4',
-		name: 'Time Warp',
-		description: 'Speeds up coin generation',
-		price: 1000,
-		image: '/upgrades/time-warp.png',
+		image: '/mega_tapper.webp',
 	},
 ];
 
@@ -88,7 +74,7 @@ export const ShopPage = () => {
 
 			{/* Main content */}
 			<div className="flex-1 overflow-y-auto p-4">
-				<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+				<div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-4">
 					{upgrades.map((upgrade) => (
 						<Card
 							key={upgrade.id}
@@ -101,7 +87,7 @@ export const ShopPage = () => {
 								<img
 									src={upgrade.image}
 									alt={upgrade.name}
-									className="w-full h-32 object-cover rounded-md mb-2"
+									className="w-full object-cover rounded-md mb-2"
 								/>
 								<p className="text-sm text-gray-400">
 									{upgrade.description}
