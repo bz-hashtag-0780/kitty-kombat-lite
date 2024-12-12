@@ -6,6 +6,28 @@ import { Coins } from 'lucide-react';
 import { useAppContext } from '@/context/AppContext';
 import { useAuth } from '@/context/AuthContext';
 
+declare global {
+	interface Window {
+		Telegram?: {
+			WebApp?: {
+				HapticFeedback?: {
+					impactOccurred: (style: string) => void;
+				};
+			};
+		};
+	}
+}
+
+const vibrate = () => {
+	if (navigator.vibrate) {
+		navigator.vibrate(50); // Vibrate for 50ms
+	}
+	// Telegram Web App vibration
+	if (window.Telegram?.WebApp?.HapticFeedback) {
+		window.Telegram.WebApp.HapticFeedback.impactOccurred('light');
+	}
+};
+
 export const PlayPage = () => {
 	const { count, profitPerHour, setCount } = useAppContext();
 	const { windowHeight } = useAuth();
@@ -37,7 +59,10 @@ export const PlayPage = () => {
 			>
 				{/* Clickable cat circle */}
 				<button
-					onClick={() => setCount(1)}
+					onClick={() => {
+						setCount(1);
+						vibrate();
+					}}
 					className="group relative w-60 h-60 rounded-full transition-all duration-200 active:scale-95"
 				>
 					{/* Outer ring */}
