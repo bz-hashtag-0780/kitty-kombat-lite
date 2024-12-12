@@ -11,7 +11,9 @@ declare global {
 		Telegram?: {
 			WebApp?: {
 				HapticFeedback?: {
-					impactOccurred: (style: string) => void;
+					impactOccurred: (
+						style: 'light' | 'medium' | 'heavy' | 'rigid' | 'soft'
+					) => void;
 				};
 			};
 		};
@@ -20,11 +22,13 @@ declare global {
 
 const vibrate = () => {
 	if (navigator.vibrate) {
-		navigator.vibrate(50); // Vibrate for 50ms
+		// Create a deeper vibration pattern: 100ms on, 50ms off, 200ms on
+		navigator.vibrate([100, 50, 200]);
 	}
 	// Telegram Web App vibration
 	if (window.Telegram?.WebApp?.HapticFeedback) {
-		window.Telegram.WebApp.HapticFeedback.impactOccurred('light');
+		// Use 'heavy' for a stronger vibration
+		window.Telegram.WebApp.HapticFeedback.impactOccurred('heavy');
 	}
 };
 
