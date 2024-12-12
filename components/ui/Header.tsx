@@ -21,7 +21,7 @@ export const Header = () => {
 	} = useAppContext();
 
 	return (
-		<div className="flex items-center justify-between p-4 border-b border-gray-800 bg-gray-950">
+		<div className="flex items-center justify-between p-4 border-b border-gray-800 bg-gray-950 h-19">
 			<div className="flex items-center gap-2">
 				<Avatar>
 					{photo_url ? (

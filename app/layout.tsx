@@ -22,7 +22,10 @@ export default function RootLayout({
 }>) {
 	return (
 		<html lang="en">
-			<body suppressHydrationWarning={true}>
+			<body
+				suppressHydrationWarning={true}
+				className="flex flex-col h-screen overflow-hidden"
+			>
 				<MagicProvider>
 					<AuthContextProvider>
 						<AppContextProvider>
@@ -32,7 +35,9 @@ export default function RootLayout({
 								theme="dark"
 							/>
 							<Header />
-							{children}
+							<main className="flex-1 overflow-y-auto">
+								{children}
+							</main>
 							<Footer />
 						</AppContextProvider>
 					</AuthContextProvider>
