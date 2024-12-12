@@ -38,6 +38,9 @@ type AppContextType = {
 	purchaseUpgrade: (upgradeName: string, price: number) => void;
 	upgrades: any;
 	playerUpgrades: any;
+	claimPassiveCoins: () => void;
+	lastClaimTimestamp: number;
+	passiveEarnings: number;
 };
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -57,6 +60,8 @@ export const AppContextProvider = ({ children }: { children: ReactNode }) => {
 	const [withdrawAddress, setWithdrawAddress] = useState('');
 	const [upgrades, setUpgrades] = useState<any>([]);
 	const [playerUpgrades, setPlayerUpgrades] = useState<any>({});
+	const [lastClaimTimestamp, setLastClaimTimestamp] = useState(0.0);
+	const [passiveEarnings, setPassiveEarnings] = useState(0.0);
 
 	const { magic } = useMagic();
 
@@ -145,9 +150,11 @@ export const AppContextProvider = ({ children }: { children: ReactNode }) => {
 
 	useEffect(() => {
 		fetchUpgrades();
+
 		if (publicAddress) {
 			fetchFlowBalance(publicAddress);
 			fetchPlayerUpgrades(publicAddress);
+			fetchLastPassiveClaimTimestamp(publicAddress);
 			(async () => {
 				// Load saved `totalCount` from localStorage
 				const savedTotal = localStorage.getItem('totalCount');
@@ -478,7 +485,6 @@ export const AppContextProvider = ({ children }: { children: ReactNode }) => {
 					access(all) fun main(address: Address): &{String: Int}? {
 					let account = getAccount(address)
 					if(account.capabilities.borrow<&KittyKombatLite.Player>(KittyKombatLite.PlayerPublicPath) == nil) {
-						let upgrades: {String: Int} = {}
 						return nil
 					}
 					let player = account.capabilities.borrow<&KittyKombatLite.Player>(KittyKombatLite.PlayerPublicPath)
@@ -489,8 +495,13 @@ export const AppContextProvider = ({ children }: { children: ReactNode }) => {
 				`,
 				args: (arg: any, t: any) => [arg(address, t.Address)],
 			});
-			console.log('Player upgrades:', response);
 			setPlayerUpgrades(response || {});
+			const fetchedUpgrades = await fetchUpgrades();
+			const earnings = calculatePassiveEarnings(
+				response,
+				fetchedUpgrades
+			);
+			setPassiveEarnings(earnings);
 			return response || {}; // Ensure we return a valid empty object if `nil`
 		} catch (error) {
 			console.error('Failed to fetch player upgrades:', error);
@@ -605,7 +616,154 @@ export const AppContextProvider = ({ children }: { children: ReactNode }) => {
 		[magic, publicAddress, fetchCoins]
 	);
 
-	//last passive claim
+	const fetchLastPassiveClaimTimestamp = useCallback(
+		async (address: string) => {
+			try {
+				const response = await fcl.query({
+					cadence: `
+					import KittyKombatLite from 0x87535df35d7f64e1
+	
+					access(all) fun main(address: Address): UFix64 {
+						let account = getAccount(address)
+						if(account.capabilities.borrow<&KittyKombatLite.Player>(KittyKombatLite.PlayerPublicPath) == nil) {
+							return 0.0
+						}
+						let player = account.capabilities.borrow<&KittyKombatLite.Player>(KittyKombatLite.PlayerPublicPath)
+							?? panic("Could not borrow a reference to the player")
+										
+						return player.lastPassiveClaim
+					}
+					
+				`,
+					args: (arg: any, t: any) => [arg(address, t.Address)],
+				});
+				setLastClaimTimestamp(response);
+				console.log('Fetched last passive claim timestamp:', response);
+				return response;
+			} catch (error) {
+				console.error(
+					'Failed to fetch player last passive claim timestamp:',
+					error
+				);
+			}
+		},
+		[]
+	);
+
+	const calculatePassiveEarnings = (
+		playerUpgrades: { [key: string]: number }, // Player's upgrades (e.g., { "Speed Booster": 1, "Mega Tapper": 0 })
+		availableUpgrades: { [key: string]: { multiplier: number } } // Available upgrades with multipliers
+	): number => {
+		const baseEarnings = 10.0; // Base earnings per claim
+		let totalMultiplier = 1.0;
+
+		for (const [upgradeName, level] of Object.entries(playerUpgrades)) {
+			if (availableUpgrades[upgradeName]) {
+				const upgradeMultiplier =
+					availableUpgrades[upgradeName].multiplier;
+				totalMultiplier += level * (upgradeMultiplier - 1.0);
+			}
+		}
+
+		return baseEarnings * totalMultiplier;
+	};
+
+	const claimPassiveCoins = useCallback(async () => {
+		if (!magic || !publicAddress) return;
+
+		if (isTransactionInProgressRef.current) {
+			console.warn('Transaction already in progress');
+
+			return;
+		}
+
+		isTransactionInProgressRef.current = true;
+		const id = toast.loading('Saving progress...');
+
+		try {
+			const transactionId = await fcl.mutate({
+				cadence: `
+                import KittyKombatLite from 0x87535df35d7f64e1
+
+                transaction() {
+					prepare(acct: auth(BorrowValue, IssueStorageCapabilityController, PublishCapability, SaveValue) &Account) {
+						if acct.storage.borrow<&KittyKombatLite.Player>(from: KittyKombatLite.PlayerStoragePath) == nil {
+							acct.storage.save(<- KittyKombatLite.createPlayer(), to: KittyKombatLite.PlayerStoragePath)
+							let playerCap = acct.capabilities.storage.issue<&KittyKombatLite.Player>(KittyKombatLite.PlayerStoragePath)
+							acct.capabilities.publish(playerCap, at: KittyKombatLite.PlayerPublicPath)
+						}
+
+						let playerRef = acct.storage.borrow<&KittyKombatLite.Player>(from: KittyKombatLite.PlayerStoragePath) ?? panic("Could not borrow a reference to the player")
+						
+						playerRef.claimPassiveCoins()
+					}
+
+					execute {}
+				}
+              `,
+				proposer: magic.flow.authorization,
+				authorizations: [magic.flow.authorization],
+				payer: magic.flow.authorization,
+				limit: 9999,
+			});
+
+			console.log('Transaction submitted with ID:', transactionId);
+			fcl.tx(transactionId).subscribe((res: any) => {
+				toastStatus(id, res.status);
+
+				console.log(res);
+
+				if (res.status === 4) {
+					// SEALED status
+					console.log('Transaction sealed via subscribe.');
+					toast.update(id, {
+						render: 'Progress saved onchain!',
+						type: 'success',
+						isLoading: false,
+						autoClose: 2000,
+					});
+					// Delay resetting transaction progress
+					setTimeout(() => {
+						// Update smart contract balance after transaction
+						fetchCoins(publicAddress).then(
+							(updatedBalance: any) => {
+								setSmartContractBalance(updatedBalance);
+								persistTotalCount(updatedBalance);
+								fetchLastPassiveClaimTimestamp(publicAddress);
+								isTransactionInProgressRef.current = false;
+							}
+						);
+						fetchPlayerUpgrades(publicAddress);
+					}, 2000);
+				}
+			});
+		} catch (error) {
+			console.error('Failed to send transaction:', error);
+			isTransactionInProgressRef.current = false;
+			setFailedTransactionCount((prevFailedTransactionCount) => {
+				const newCount = prevFailedTransactionCount + 1;
+				console.log('Failed transaction count:', newCount);
+
+				if (newCount >= FAILURE_THRESHOLD) {
+					toast.update(id, {
+						render: 'Multiple save failures. Please reconnect wallet.',
+						type: 'error',
+						isLoading: false,
+						autoClose: 5000,
+					});
+				} else {
+					toast.update(id, {
+						render: 'Failed to save progress',
+						type: 'error',
+						isLoading: false,
+						autoClose: 2000,
+					});
+				}
+
+				return newCount; // Return the updated count
+			});
+		}
+	}, [magic, publicAddress, fetchCoins]);
 
 	// claim passive coins
 
@@ -632,6 +790,9 @@ export const AppContextProvider = ({ children }: { children: ReactNode }) => {
 				purchaseUpgrade,
 				upgrades,
 				playerUpgrades,
+				claimPassiveCoins,
+				lastClaimTimestamp,
+				passiveEarnings,
 			}}
 		>
 			{children}
