@@ -35,8 +35,9 @@ type AppContextType = {
 	withdrawAmount: string;
 	withdrawAddress: string;
 	fetchUpgrades: () => Promise<any>;
-	purchaseUpgrade: () => void;
+	purchaseUpgrade: (upgradeName: string, price: number) => void;
 	upgrades: any;
+	playerUpgrades: any;
 };
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -55,6 +56,7 @@ export const AppContextProvider = ({ children }: { children: ReactNode }) => {
 	const [withdrawAmount, setWithdrawAmount] = useState('');
 	const [withdrawAddress, setWithdrawAddress] = useState('');
 	const [upgrades, setUpgrades] = useState<any>([]);
+	const [playerUpgrades, setPlayerUpgrades] = useState<any>({});
 
 	const { magic } = useMagic();
 
@@ -145,6 +147,7 @@ export const AppContextProvider = ({ children }: { children: ReactNode }) => {
 		fetchUpgrades();
 		if (publicAddress) {
 			fetchFlowBalance(publicAddress);
+			fetchPlayerUpgrades(publicAddress);
 			(async () => {
 				// Load saved `totalCount` from localStorage
 				const savedTotal = localStorage.getItem('totalCount');
@@ -462,11 +465,138 @@ export const AppContextProvider = ({ children }: { children: ReactNode }) => {
 			setUpgrades(formattedUpgrades);
 			return response;
 		} catch (error) {
-			console.error('Failed to fetch Coin balance:', error);
+			console.error('Failed to fetch upgrades:', error);
 		}
 	}, []);
 
-	const purchaseUpgrade = useCallback(async () => {}, []);
+	const fetchPlayerUpgrades = useCallback(async (address: string) => {
+		try {
+			const response = await fcl.query({
+				cadence: `
+					import KittyKombatLite from 0x87535df35d7f64e1
+	
+					access(all) fun main(address: Address): &{String: Int}? {
+					let account = getAccount(address)
+					if(account.capabilities.borrow<&KittyKombatLite.Player>(KittyKombatLite.PlayerPublicPath) == nil) {
+						let upgrades: {String: Int} = {}
+						return nil
+					}
+					let player = account.capabilities.borrow<&KittyKombatLite.Player>(KittyKombatLite.PlayerPublicPath)
+						?? panic("Could not borrow a reference to the player")
+									
+					return player.upgrades
+				}
+				`,
+				args: (arg: any, t: any) => [arg(address, t.Address)],
+			});
+			console.log('Player upgrades:', response);
+			setPlayerUpgrades(response || {});
+			return response || {}; // Ensure we return a valid empty object if `nil`
+		} catch (error) {
+			console.error('Failed to fetch player upgrades:', error);
+			return {}; // Return an empty map on failure
+		}
+	}, []);
+
+	const purchaseUpgrade = useCallback(
+		async (upgradeName: string, price: number) => {
+			if (!magic || !publicAddress || smartContractBalance <= 0) return;
+
+			if (isTransactionInProgressRef.current) {
+				console.warn('Transaction already in progress');
+
+				return;
+			}
+
+			isTransactionInProgressRef.current = true;
+			const id = toast.loading('Saving progress...');
+
+			try {
+				const transactionId = await fcl.mutate({
+					cadence: `
+                import KittyKombatLite from 0x87535df35d7f64e1
+
+                transaction(upgradeName: String) {
+				prepare(acct: auth(BorrowValue, IssueStorageCapabilityController, PublishCapability, SaveValue) &Account) {
+					if acct.storage.borrow<&KittyKombatLite.Player>(from: KittyKombatLite.PlayerStoragePath) == nil {
+						acct.storage.save(<- KittyKombatLite.createPlayer(), to: KittyKombatLite.PlayerStoragePath)
+						let playerCap = acct.capabilities.storage.issue<&KittyKombatLite.Player>(KittyKombatLite.PlayerStoragePath)
+						acct.capabilities.publish(playerCap, at: KittyKombatLite.PlayerPublicPath)
+					}
+
+					let playerRef = acct.storage.borrow<&KittyKombatLite.Player>(from: KittyKombatLite.PlayerStoragePath) ?? panic("Could not borrow a reference to the player")
+					
+					playerRef.purchaseUpgrade(upgradeName: upgradeName)
+				}
+
+				execute {}
+			}
+              `,
+					args: (arg: any, t: any) => [arg(upgradeName, t.String)],
+					proposer: magic.flow.authorization,
+					authorizations: [magic.flow.authorization],
+					payer: magic.flow.authorization,
+					limit: 9999,
+				});
+				persistTotalCount(totalCount - price); // Deduct the price from total count
+
+				console.log('Transaction submitted with ID:', transactionId);
+				fcl.tx(transactionId).subscribe((res: any) => {
+					toastStatus(id, res.status);
+
+					console.log(res);
+
+					if (res.status === 4) {
+						// SEALED status
+						console.log('Transaction sealed via subscribe.');
+						toast.update(id, {
+							render: 'Progress saved onchain!',
+							type: 'success',
+							isLoading: false,
+							autoClose: 2000,
+						});
+						// Delay resetting transaction progress
+						setTimeout(() => {
+							// Update smart contract balance after transaction
+							fetchCoins(publicAddress).then(
+								(updatedBalance: any) => {
+									setSmartContractBalance(updatedBalance);
+									isTransactionInProgressRef.current = false;
+								}
+							);
+							fetchPlayerUpgrades(publicAddress);
+						}, 2000);
+					}
+				});
+			} catch (error) {
+				console.error('Failed to send transaction:', error);
+				isTransactionInProgressRef.current = false;
+				setFailedTransactionCount((prevFailedTransactionCount) => {
+					const newCount = prevFailedTransactionCount + 1;
+					console.log('Failed transaction count:', newCount);
+
+					if (newCount >= FAILURE_THRESHOLD) {
+						toast.update(id, {
+							render: 'Multiple save failures. Please reconnect wallet.',
+							type: 'error',
+							isLoading: false,
+							autoClose: 5000,
+						});
+					} else {
+						toast.update(id, {
+							render: 'Failed to save progress',
+							type: 'error',
+							isLoading: false,
+							autoClose: 2000,
+						});
+					}
+
+					return newCount; // Return the updated count
+				});
+			}
+		},
+		[magic, publicAddress, fetchCoins]
+	);
 
 	return (
 		<AppContext.Provider
@@ -490,6 +620,7 @@ export const AppContextProvider = ({ children }: { children: ReactNode }) => {
 				fetchUpgrades,
 				purchaseUpgrade,
 				upgrades,
+				playerUpgrades,
 			}}
 		>
 			{children}

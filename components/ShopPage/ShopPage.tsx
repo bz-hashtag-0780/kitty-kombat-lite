@@ -1,3 +1,4 @@
+/* eslint-disable @next/next/no-img-element */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 
@@ -57,12 +58,19 @@ const formatMultiplier = (multiplier: string | number) => {
 };
 
 export const ShopPage = () => {
-	const { coinBalance, upgrades } = useAppContext();
+	const { coinBalance, upgrades, playerUpgrades, purchaseUpgrade } =
+		useAppContext();
 	const { windowHeight } = useAuth();
 
 	const headerHeight = 70;
 	const footerHeight = 80;
 	const contentHeight = windowHeight - headerHeight - footerHeight;
+
+	// Combine upgrades with player levels
+	const enrichedUpgrades = upgrades.map((upgrade: any) => ({
+		...upgrade,
+		level: playerUpgrades[upgrade.name] || 0, // Default to level 0 if not found
+	}));
 
 	return (
 		<div
@@ -79,10 +87,13 @@ export const ShopPage = () => {
 
 			{/* Main content */}
 			<div className="flex-1 overflow-y-auto p-4 space-y-2">
-				{upgrades.map((upgrade: any) => (
+				{enrichedUpgrades.map((upgrade: any) => (
 					<div
 						key={upgrade.id}
 						className="flex items-center bg-gray-900 rounded-lg p-3 cursor-pointer hover:bg-gray-800 transition-colors duration-200 border border-gray-800"
+						onClick={() =>
+							purchaseUpgrade(upgrade.name, upgrade.price)
+						}
 					>
 						{/* Left: Image */}
 						<div className="w-16 h-16 rounded-md overflow-hidden flex-shrink-0">
