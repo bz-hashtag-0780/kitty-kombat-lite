@@ -40,6 +40,22 @@ const upgrades: Upgrade[] = [
 		image: '/mega_tapper.webp',
 		level: 0,
 	},
+	{
+		id: '3',
+		name: 'Speed Booster',
+		description: '10%',
+		price: 100,
+		image: '/speed_booster.webp',
+		level: 1,
+	},
+	{
+		id: '4',
+		name: 'Mega Tapper',
+		description: '100%',
+		price: 250,
+		image: '/mega_tapper.webp',
+		level: 0,
+	},
 ];
 
 export const ShopPage = () => {
