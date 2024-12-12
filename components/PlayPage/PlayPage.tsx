@@ -14,6 +14,9 @@ declare global {
 						style: 'light' | 'medium' | 'heavy' | 'rigid' | 'soft'
 					) => void;
 				};
+				notificationOccurred: (
+					type: 'error' | 'success' | 'warning'
+				) => void;
 			};
 		};
 	}
@@ -44,6 +47,14 @@ export const PlayPage = () => {
 					);
 				}
 			}, 100);
+
+			setTimeout(() => {
+				if (window.Telegram?.WebApp?.HapticFeedback) {
+					window.Telegram.WebApp.HapticFeedback.notificationOccurred(
+						'success'
+					);
+				}
+			}, 200);
 		}
 	};
 
