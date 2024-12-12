@@ -448,15 +448,17 @@ export const AppContextProvider = ({ children }: { children: ReactNode }) => {
             `,
 			});
 			console.log('Upgrades', response);
-			const formattedUpgrades = Object.entries(response).map(
-				([key, value]: [string, any]) => ({
+			// Format and sort the upgrades by price
+			const formattedUpgrades = Object.entries(response)
+				.map(([key, value]: [string, any]) => ({
 					id: key,
 					name: value.name,
 					description: value.description,
-					price: parseFloat(value.cost),
+					price: parseFloat(value.cost), // Ensure price is a number
 					multiplier: value.multiplier,
-				})
-			);
+				}))
+				.sort((a, b) => a.price - b.price); // Sort by price (cheapest first)
+
 			setUpgrades(formattedUpgrades);
 			return response;
 		} catch (error) {

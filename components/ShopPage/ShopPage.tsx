@@ -109,13 +109,13 @@ export const ShopPage = () => {
 							</div>
 						</div>
 
-						{/* Right: Level and CPS */}
+						{/* Right: Level and Multiplier */}
 						<div className="text-right">
 							<div className="text-lg font-bold text-white">
-								Level {upgrade.level}
+								Level {upgrade.level || 0}
 							</div>
 							<div className="text-sm text-green-400">
-								Multiplier:{' '}
+								Multiplier{' '}
 								{formatMultiplier(upgrade.multiplier)}
 							</div>
 						</div>
