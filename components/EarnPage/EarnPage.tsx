@@ -2,13 +2,15 @@
 'use client';
 
 import React from 'react';
-import { Wallet, ArrowUpRight, LogOut, Copy } from 'lucide-react';
+import { Wallet, ArrowUpRight, Copy } from 'lucide-react';
 import { useAppContext } from '@/context/AppContext';
 import { useAuth } from '@/context/AuthContext';
 import { Button } from '@/components/EarnPage/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/EarnPage/ui/input';
 import { toast } from 'react-toastify';
+import { LogOutButton } from '@/components/magic/LogOutButton';
+import { LoginButton } from '../magic/LoginButton';
 
 export const EarnPage = () => {
 	const {
@@ -20,6 +22,7 @@ export const EarnPage = () => {
 		setWithdrawAddress,
 		setWithdrawAmount,
 		transferFlow,
+		setShowLoginModal,
 	} = useAppContext();
 	const { windowHeight } = useAuth();
 
@@ -57,10 +60,15 @@ export const EarnPage = () => {
 					}}
 				>
 					<CardHeader>
-						<CardTitle>Your Wallet Address</CardTitle>
+						<CardTitle>Fund Your Flow Address</CardTitle>
 					</CardHeader>
 					<CardContent>
 						<p className="font-mono text-sm break-all flex flex-row gap-x-1 items-center">
+							<span className="text-gray-400">Balance:</span>{' '}
+							{flowBalance.toFixed(6)} FLOW
+						</p>
+						<p className="font-mono text-sm break-all flex flex-row gap-x-1 items-center">
+							<span className="text-gray-400">Address:</span>
 							{publicAddress}
 							<Copy className="mr-2 h-3 w-3" />
 						</p>
@@ -116,10 +124,11 @@ export const EarnPage = () => {
 						</p>
 					</CardContent>
 				</Card>
-
-				<Button variant="outline" className="mt-4 p-2">
-					<LogOut className="mr-2 h-4 w-4" /> Log Out
-				</Button>
+				{!publicAddress ? (
+					<LoginButton onClick={() => setShowLoginModal(true)} />
+				) : (
+					<LogOutButton />
+				)}
 			</div>
 		</div>
 	);
