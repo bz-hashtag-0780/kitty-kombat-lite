@@ -14,6 +14,9 @@ declare global {
 					impactOccurred: (
 						style: 'light' | 'medium' | 'heavy' | 'rigid' | 'soft'
 					) => void;
+					notificationOccurred: (
+						type: 'error' | 'success' | 'warning'
+					) => void;
 				};
 			};
 		};
@@ -22,13 +25,26 @@ declare global {
 
 const vibrate = () => {
 	if (navigator.vibrate) {
-		// Create a deeper vibration pattern: 100ms on, 50ms off, 200ms on
-		navigator.vibrate([100, 50, 200]);
+		// Create a pattern similar to catching a shiny Pokémon:
+		// 5 short vibrations with brief pauses in between
+		navigator.vibrate([50, 50, 50, 50, 50, 50, 50, 50, 50, 50]);
 	}
 	// Telegram Web App vibration
 	if (window.Telegram?.WebApp?.HapticFeedback) {
-		// Use 'heavy' for a stronger vibration
-		window.Telegram.WebApp.HapticFeedback.impactOccurred('heavy');
+		// Use a combination of impacts and notification to create a unique feel
+		window.Telegram.WebApp.HapticFeedback.impactOccurred('medium');
+		setTimeout(() => {
+			if (window.Telegram?.WebApp?.HapticFeedback) {
+				window.Telegram.WebApp.HapticFeedback.impactOccurred('medium');
+			}
+		}, 100);
+		setTimeout(() => {
+			if (window.Telegram?.WebApp?.HapticFeedback) {
+				window.Telegram.WebApp.HapticFeedback.notificationOccurred(
+					'success'
+				);
+			}
+		}, 200);
 	}
 };
 
