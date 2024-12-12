@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Coins } from 'lucide-react';
 import { useAppContext } from '@/context/AppContext';
 import { useAuth } from '@/context/AuthContext';
@@ -30,22 +30,11 @@ interface CoinPopup {
 
 const vibrate = () => {
 	if (navigator.vibrate) {
-		navigator.vibrate([50, 50, 50, 50, 50, 50, 50, 50, 50, 50]);
+		navigator.vibrate([50, 50, 50, 50, 50]);
 	}
 	if (window.Telegram?.WebApp?.HapticFeedback) {
 		window.Telegram.WebApp.HapticFeedback.impactOccurred('medium');
-		setTimeout(() => {
-			if (window.Telegram?.WebApp?.HapticFeedback) {
-				window.Telegram.WebApp.HapticFeedback.impactOccurred('medium');
-			}
-		}, 100);
-		setTimeout(() => {
-			if (window.Telegram?.WebApp?.HapticFeedback) {
-				window.Telegram.WebApp.HapticFeedback.notificationOccurred(
-					'success'
-				);
-			}
-		}, 200);
+		window.Telegram.WebApp.HapticFeedback.notificationOccurred('success');
 	}
 };
 
@@ -88,19 +77,22 @@ export const PlayPage = () => {
 	const footerHeight = 80;
 	const contentHeight = windowHeight - headerHeight - footerHeight;
 
-	const handleTap = (event: React.MouseEvent<HTMLButtonElement>) => {
-		setCount(1);
-		vibrate();
+	const handleTap = useCallback(
+		(event: React.MouseEvent<HTMLButtonElement>) => {
+			setCount(1);
+			vibrate();
 
-		const buttonRect = event.currentTarget.getBoundingClientRect();
-		const newCoins = Array.from({ length: 5 }, (_, index) => ({
-			id: Date.now() + index,
-			x: event.clientX - buttonRect.left + (Math.random() * 40 - 20),
-			y: event.clientY - buttonRect.top + (Math.random() * 40 - 20),
-		}));
+			const buttonRect = event.currentTarget.getBoundingClientRect();
+			const newCoins = Array.from({ length: 5 }, (_, index) => ({
+				id: Date.now() + index,
+				x: event.clientX - buttonRect.left + (Math.random() * 40 - 20),
+				y: event.clientY - buttonRect.top + (Math.random() * 40 - 20),
+			}));
 
-		setCoinPopups((prevPopups) => [...prevPopups, ...newCoins]);
-	};
+			setCoinPopups((prevPopups) => [...prevPopups, ...newCoins]);
+		},
+		[setCount]
+	);
 
 	useEffect(() => {
 		const timer = setTimeout(() => {
@@ -110,9 +102,17 @@ export const PlayPage = () => {
 		return () => clearTimeout(timer);
 	}, [coinPopups]);
 
+	useEffect(() => {
+		const preventDefault = (e: Event) => e.preventDefault();
+		document.addEventListener('touchmove', preventDefault, {
+			passive: false,
+		});
+		return () => document.removeEventListener('touchmove', preventDefault);
+	}, []);
+
 	return (
 		<div
-			className="flex flex-col bg-gray-950"
+			className="flex flex-col bg-gray-950 select-none"
 			style={{ height: `${contentHeight}px` }}
 		>
 			{/* Profit per hour */}
@@ -133,7 +133,8 @@ export const PlayPage = () => {
 				{/* Clickable cat circle */}
 				<button
 					onClick={handleTap}
-					className="group relative w-60 h-60 rounded-full transition-all duration-200 active:scale-95"
+					className="group relative w-60 h-60 rounded-full transition-all duration-100 active:scale-95"
+					style={{ touchAction: 'manipulation' }}
 				>
 					{/* Outer ring */}
 					<div className="absolute inset-0 rounded-full bg-gradient-to-b from-gray-800 to-gray-900 p-1">
@@ -147,7 +148,8 @@ export const PlayPage = () => {
 							<img
 								src="/babycat.png"
 								alt="cat"
-								className="relative w-full h-full object-contain group-hover:scale-105 transition-transform duration-200"
+								className="relative w-full h-full object-contain transition-transform duration-100 group-hover:scale-105 group-active:scale-95"
+								draggable="false"
 							/>
 						</div>
 					</div>
@@ -156,7 +158,7 @@ export const PlayPage = () => {
 					{coinPopups.map((coin) => (
 						<div
 							key={coin.id}
-							className="absolute w-6 h-6 animate-coin-popup"
+							className="absolute w-6 h-6 animate-coin-popup pointer-events-none"
 							style={{ left: `${coin.x}px`, top: `${coin.y}px` }}
 						>
 							<CoinSVG />
