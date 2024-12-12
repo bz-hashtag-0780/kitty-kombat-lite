@@ -36,7 +36,7 @@ export const EarnPage = () => {
 			</div>
 
 			{/* Main content */}
-			<div className="flex-1 flex flex-col items-center justify-start p-4 space-y-6 overflow-y-auto">
+			<div className="flex-1 flex flex-col items-center justify-center p-4 space-y-6 overflow-y-auto">
 				<Card
 					className="w-full max-w-md bg-gray-900 text-white border-gray-800 cursor-pointer"
 					onClick={() => {
