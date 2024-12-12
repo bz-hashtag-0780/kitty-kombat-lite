@@ -98,7 +98,7 @@ export const ShopPage = () => {
 							<h3 className="text-lg font-semibold text-white">
 								{upgrade.name}
 							</h3>
-							<p className="text-sm text-gray-400">
+							<p className="text-xs text-gray-400">
 								{upgrade.description}
 							</p>
 							<div className="flex items-center gap-1">
