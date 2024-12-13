@@ -2,40 +2,10 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Coins } from 'lucide-react';
 import { useAppContext } from '@/context/AppContext';
-
-// interface Upgrade {
-// 	id: string;
-// 	name: string;
-// 	description: string;
-// 	price: number;
-// 	image: string;
-// 	level: number;
-// 	cps: string;
-// }
-
-// const upgrades: Upgrade[] = [
-// 	{
-// 		id: '1',
-// 		name: 'Speed Booster',
-// 		description: 'Boosts your clicking speed',
-// 		price: 100,
-// 		image: '/speed_booster.webp',
-// 		level: 1,
-// 		cps: '+0.1',
-// 	},
-// 	{
-// 		id: '2',
-// 		name: 'Mega Tapper',
-// 		description: 'Automatically taps for you',
-// 		price: 250,
-// 		image: '/mega_tapper.webp',
-// 		level: 0,
-// 		cps: '+1.0',
-// 	},
-// ];
+import Spinner from '@/components/magic/ui/Spinner';
 
 const imageMapping = [
 	{ name: 'Speed Booster', image: '/speed_booster.webp' },
@@ -60,6 +30,8 @@ export const ShopPage = () => {
 	const { coinBalance, upgrades, playerUpgrades, purchaseUpgrade } =
 		useAppContext();
 
+	const [isUpgrading, setIsUpgrading] = useState(null);
+
 	// Combine upgrades with player levels
 	const enrichedUpgrades = upgrades.map((upgrade: any) => ({
 		...upgrade,
@@ -82,9 +54,11 @@ export const ShopPage = () => {
 					<div
 						key={upgrade.id}
 						className="flex items-center bg-gray-900 rounded-lg p-3 cursor-pointer hover:bg-gray-800 transition-colors duration-200 border border-gray-800"
-						onClick={(e: any) => {
+						onClick={async (e: any) => {
 							e.stopPropagation(); // Prevents parent containers from capturing the click event
-							purchaseUpgrade(upgrade.name, upgrade.price);
+							setIsUpgrading(upgrade.id);
+							await purchaseUpgrade(upgrade.name, upgrade.price);
+							setTimeout(() => setIsUpgrading(null), 15000);
 						}}
 					>
 						{/* Left: Image */}
@@ -114,8 +88,13 @@ export const ShopPage = () => {
 
 						{/* Right: Level and Multiplier */}
 						<div className="text-right">
-							<div className="text-lg font-bold text-white">
-								Level {upgrade.level || 0}
+							<div className="flex items-center justify-end text-lg font-bold text-white">
+								<span className="mr-1">Level</span>
+								{isUpgrading === upgrade.id ? (
+									<Spinner />
+								) : (
+									<span>{upgrade.level || 0}</span>
+								)}
 							</div>
 							<div className="text-sm text-green-400">
 								Multiplier{' '}
