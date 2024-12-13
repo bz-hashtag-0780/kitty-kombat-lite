@@ -1,4 +1,3 @@
-// app/layout.tsx
 'use client';
 
 import './globals.css';
@@ -10,25 +9,36 @@ import { AppContextProvider } from '@/context/AppContext';
 import * as fcl from '@onflow/fcl';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import Head from 'next/head';
+import { useEffect } from 'react';
 
 fcl.config({
 	'accessNode.api': 'https://rest-mainnet.onflow.org',
 });
+
+export const metadata = {
+	viewport: {
+		width: 'device-width',
+		initialScale: 1,
+		maximumScale: 1,
+		userScalable: 'no',
+	},
+};
 
 export default function RootLayout({
 	children,
 }: Readonly<{
 	children: React.ReactNode;
 }>) {
+	useEffect(() => {
+		const preventDefault = (e: TouchEvent) => e.preventDefault();
+		document.addEventListener('touchmove', preventDefault, {
+			passive: false,
+		});
+		return () => document.removeEventListener('touchmove', preventDefault);
+	}, []);
+
 	return (
 		<html lang="en">
-			<Head>
-				<meta
-					name="viewport"
-					content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
-				/>
-			</Head>
 			<body
 				suppressHydrationWarning={true}
 				className="flex flex-col h-screen overflow-hidden"
