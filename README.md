@@ -13,7 +13,7 @@ View [Live Demo on Telegram: https://t.me/KittyKombatLiteBot/app/](https://t.me/
 1. Create accounts and gather credentials:
     - [Vercel](https://vercel.com) account for deployment
     - [Magic.link](https://magic.link) dashboard account
-    - [Flow](https://flow.com) mainnet account
+    - [Flow Wallet](https://wallet.flow.com) mainnet account
 
 ## Environment Setup
 
@@ -26,6 +26,7 @@ NEXT_PUBLIC_MAGIC_API_KEY=your_magic_publishable_key
 2. Set up Flow credentials:
     - Create `mainnet-account.pkey` file with your Flow private key
 
+-   View your private key by navigating to: Flow Wallet chrome extension > settings > account list > [account] > private key
 -   Update `flow.json` with your mainnet account address
 
 ```sh
