@@ -56,7 +56,7 @@ export const EarnPage = () => {
 							<span className="text-gray-400">Balance:</span>{' '}
 							{flowBalance.toFixed(6)} FLOW
 						</p>
-						<p className="font-mono text-sm break-all flex flex-row gap-x-1 items-center">
+						<p className="font-mono text-sm break-all flex flex-row gap-x-1 items-center cursor-pointer active:text-gray-500">
 							<span className="text-gray-400">Address:</span>
 							{publicAddress}
 							<Copy className="mr-2 h-3 w-3" />

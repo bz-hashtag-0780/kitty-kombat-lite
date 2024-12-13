@@ -1,12 +1,13 @@
 'use client';
 
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { BadgeCheck, Coins } from 'lucide-react';
+import { BadgeCheck, Coins, Copy } from 'lucide-react';
 import { LoginButton } from '@/components/magic/LoginButton';
 import { LoginModal } from '@/components/magic/LoginModal';
 import { useAuth } from '@/context/AuthContext';
 import { useAppContext } from '@/context/AppContext';
 import { LogOutButton } from '../magic/LogOutButton';
+import { toast } from 'react-toastify';
 
 export const Header = () => {
 	const { username, photo_url } = useAuth();
@@ -31,7 +32,16 @@ export const Header = () => {
 					)}
 					<AvatarFallback>KK</AvatarFallback>
 				</Avatar>
-				<div>
+				<div
+					onClick={() => {
+						if (publicAddress) {
+							navigator.clipboard.writeText(publicAddress);
+							toast('Address copied to clipboard!', {
+								autoClose: 2000,
+							});
+						}
+					}}
+				>
 					<div className="flex items-center gap-1">
 						{username ? (
 							<>
@@ -46,7 +56,10 @@ export const Header = () => {
 							</span>
 						)}
 					</div>
-					<div className="text-sm text-gray-400">{publicAddress}</div>
+					<div className="text-sm text-gray-400 flex flex-row gap-x-1 items-center cursor-pointer active:text-gray-500">
+						{publicAddress}
+						{publicAddress && <Copy className="mr-2 h-3 w-3" />}
+					</div>
 				</div>
 			</div>
 			<div className="flex items-center gap-2">
