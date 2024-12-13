@@ -73,7 +73,9 @@ export const Header = () => {
 									<Coins className="w-3 h-3 text-yellow-500" />
 									<span className="text-white text-sm">
 										{/* {count} */}
-										{coinBalance}
+										{new Intl.NumberFormat().format(
+											coinBalance
+										)}
 									</span>
 								</div>
 								{flowBalance && (

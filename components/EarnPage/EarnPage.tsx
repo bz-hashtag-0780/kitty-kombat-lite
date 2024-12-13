@@ -30,7 +30,8 @@ export const EarnPage = () => {
 				<div className="flex items-center gap-2 text-sm">
 					<Wallet className="w-4 h-4 text-blue-500" />
 					<span className="text-blue-500">
-						{flowBalance.toFixed(2)} FLOW | {coinBalance} Coins
+						{flowBalance.toFixed(2)} FLOW |{' '}
+						{new Intl.NumberFormat().format(coinBalance)} Coins
 					</span>
 				</div>
 			</div>
@@ -104,7 +105,10 @@ export const EarnPage = () => {
 
 				<Card className="w-full max-w-md bg-gray-900 text-white border-gray-800">
 					<CardHeader>
-						<CardTitle>Airdrop: {coinBalance} coins</CardTitle>
+						<CardTitle>
+							Airdrop:{' '}
+							{new Intl.NumberFormat().format(coinBalance)} coins
+						</CardTitle>
 					</CardHeader>
 					<CardContent>
 						<p className="text-sm text-gray-400">
