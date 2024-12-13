@@ -14,10 +14,10 @@ export const Footer = () => {
 
 	return (
 		<div className="border-t border-gray-800 bg-gray-900 text-white h-26">
-			<div className="flex justify-around p-4">
+			<div className="flex justify-around">
 				<Link
 					href="/shop"
-					className={`flex flex-col items-center gap-2 h-16 w-full text-center ${getActiveStyle(
+					className={`flex flex-col items-center gap-2 p-4 h-24 w-full text-center ${getActiveStyle(
 						'/shop'
 					)}`}
 				>
@@ -26,7 +26,7 @@ export const Footer = () => {
 				</Link>
 				<Link
 					href="/play"
-					className={`flex flex-col items-center gap-2 h-16 w-full text-center ${getActiveStyle(
+					className={`flex flex-col items-center gap-2 p-4 h-24 w-full text-center ${getActiveStyle(
 						'/'
 					)} ${getActiveStyle('/play')}`}
 				>
@@ -35,7 +35,7 @@ export const Footer = () => {
 				</Link>
 				<Link
 					href="/earn"
-					className={`flex flex-col items-center gap-2 h-16 w-full text-center ${getActiveStyle(
+					className={`flex flex-col items-center gap-2 p-4 h-24 w-full text-center ${getActiveStyle(
 						'/earn'
 					)}`}
 				>
