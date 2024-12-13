@@ -42,3 +42,9 @@ textarea {
 	-webkit-user-select: text;
 	user-select: text;
 }
+
+@viewport {
+	zoom: 1;
+	min-zoom: 1;
+	max-zoom: 1;
+}
