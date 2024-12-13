@@ -41,7 +41,7 @@ export const ShopPage = () => {
 	return (
 		<div className="flex flex-col h-full bg-gray-950">
 			{/* Balance info */}
-			<div className="flex justify-center p-2 bg-gradient-to-r from-yellow-600/20 to-yellow-500/20">
+			<div className="flex justify-center p-2 bg-gradient-to-r from-yellow-600/20 to-yellow-500/20 h-11">
 				<div className="flex items-center gap-2 text-sm">
 					<Coins className="w-4 h-4 text-yellow-500" />
 					<span className="text-yellow-500">{coinBalance} coins</span>

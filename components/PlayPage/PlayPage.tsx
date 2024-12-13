@@ -95,7 +95,7 @@ export const PlayPage = () => {
 	return (
 		<div className="flex flex-col bg-gray-950 select-none">
 			{/* Passive earnings banner */}
-			<div className="flex justify-between items-center p-2 bg-gradient-to-r from-yellow-600/20 to-yellow-500/20">
+			<div className="flex justify-between items-center p-2 bg-gradient-to-r from-yellow-600/20 to-yellow-500/20 h-11">
 				<div className="flex items-center gap-2 text-sm">
 					<Coins className="w-4 h-4 text-yellow-500" />
 					<span className="text-yellow-500">

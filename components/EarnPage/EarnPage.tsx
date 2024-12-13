@@ -26,7 +26,7 @@ export const EarnPage = () => {
 	return (
 		<div className="flex flex-col h-full bg-gray-950">
 			{/* Balance info */}
-			<div className="flex justify-center p-2 bg-gradient-to-r from-blue-600/20 to-purple-500/20">
+			<div className="flex justify-center p-2 bg-gradient-to-r from-blue-600/20 to-purple-500/20 h-11">
 				<div className="flex items-center gap-2 text-sm">
 					<Wallet className="w-4 h-4 text-blue-500" />
 					<span className="text-blue-500">
