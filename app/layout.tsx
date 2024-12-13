@@ -1,5 +1,6 @@
 'use client';
 
+import { useEffect } from 'react';
 import './globals.css';
 import { Header } from '@/components/ui/Header';
 import { Footer } from '@/components/ui/Footer';
@@ -9,7 +10,6 @@ import { AppContextProvider } from '@/context/AppContext';
 import * as fcl from '@onflow/fcl';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import { useEffect } from 'react';
 
 fcl.config({
 	'accessNode.api': 'https://rest-mainnet.onflow.org',
@@ -21,11 +21,30 @@ export default function RootLayout({
 	children: React.ReactNode;
 }>) {
 	useEffect(() => {
-		const preventDefault = (e: TouchEvent) => e.preventDefault();
+		// Set viewport meta tag
+		const meta = document.createElement('meta');
+		meta.name = 'viewport';
+		meta.content =
+			'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no';
+		document.getElementsByTagName('head')[0].appendChild(meta);
+
+		// Prevent default touch events
+		const preventDefault = (e: Event) => e.preventDefault();
 		document.addEventListener('touchmove', preventDefault, {
 			passive: false,
 		});
-		return () => document.removeEventListener('touchmove', preventDefault);
+
+		// Prevent pinch zoom
+		document.addEventListener('gesturestart', preventDefault);
+		document.addEventListener('gesturechange', preventDefault);
+		document.addEventListener('gestureend', preventDefault);
+
+		return () => {
+			document.removeEventListener('touchmove', preventDefault);
+			document.removeEventListener('gesturestart', preventDefault);
+			document.removeEventListener('gesturechange', preventDefault);
+			document.removeEventListener('gestureend', preventDefault);
+		};
 	}, []);
 
 	return (
