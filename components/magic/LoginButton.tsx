@@ -2,12 +2,14 @@
 
 import { Button } from '@/components/ui/button';
 import { LogIn } from 'lucide-react';
-
+import { useAuth } from '@/context/AuthContext';
+import Spinner from '@/components/magic/ui/Spinner';
 interface LoginButtonProps {
 	onClick: () => void;
 }
 
 export function LoginButton({ onClick }: LoginButtonProps) {
+	const { token } = useAuth();
 	return (
 		<Button
 			variant="outline"
@@ -15,7 +17,7 @@ export function LoginButton({ onClick }: LoginButtonProps) {
 			className="p-1 text-primary hover:text-primary border border-primary/20 hover:border-primary/40"
 		>
 			<LogIn className="w-4 h-4 mr-2" />
-			Login
+			{token.length > 0 ? <Spinner /> : 'Login'}
 		</Button>
 	);
 }
