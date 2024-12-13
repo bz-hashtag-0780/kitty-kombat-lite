@@ -34,10 +34,10 @@ export function LoginModal({ open, onOpenChange }: LoginModalProps) {
 
 	const handlePhoneSubmit = async (e: React.FormEvent) => {
 		e.preventDefault();
-		// const formattedPhoneNumber = phoneNumber.startsWith('+')
-		// 	? phoneNumber
-		// 	: '+' + phoneNumber;
-		if (!phoneNumber.match(/^\+?\d{10,14}$/)) {
+		const formattedPhoneNumber = phoneNumber.startsWith('+')
+			? phoneNumber
+			: '+' + phoneNumber;
+		if (!formattedPhoneNumber.match(/^\+?\d{10,14}$/)) {
 			setPhoneError(true);
 			return;
 		}
@@ -46,7 +46,7 @@ export function LoginModal({ open, onOpenChange }: LoginModalProps) {
 		try {
 			setLoginInProgress(true);
 			const token = await magic?.auth.loginWithSMS({
-				phoneNumber,
+				phoneNumber: formattedPhoneNumber,
 			});
 			if (token) {
 				saveToken(token, setToken, 'SMS');
