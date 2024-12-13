@@ -1,3 +1,11 @@
+# Kitty Kombat Lite
+
+View [Live Demo on Telegram: https://t.me/KittyKombatLiteBot/app/](https://t.me/KittyKombatLiteBot/app/)
+
+<img src="./public/live_demo.jpg" alt="Live Demo" width="300" />
+
+---
+
 # Production Setup Guide
 
 ## Prerequisites
