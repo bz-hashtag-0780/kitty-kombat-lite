@@ -3,7 +3,6 @@
 import { useState } from 'react';
 import { useMagic } from '@/context/MagicContext';
 import { useAuth } from '@/context/AuthContext';
-import showToast from '@/utils/showToast';
 import { saveToken } from '@/utils/common';
 import { RPCError, RPCErrorCode } from 'magic-sdk';
 import { LoginModalButton } from '@/components/magic/ui/LoginModalButton';
@@ -35,7 +34,10 @@ export function LoginModal({ open, onOpenChange }: LoginModalProps) {
 
 	const handlePhoneSubmit = async (e: React.FormEvent) => {
 		e.preventDefault();
-		if (!phoneNumber.match(/^\+?\d{10,14}$/)) {
+		const formattedPhoneNumber = phoneNumber.startsWith('+')
+			? phoneNumber
+			: '+' + phoneNumber;
+		if (!formattedPhoneNumber.match(/^\+?\d{10,14}$/)) {
 			setPhoneError(true);
 			return;
 		}
@@ -43,7 +45,9 @@ export function LoginModal({ open, onOpenChange }: LoginModalProps) {
 
 		try {
 			setLoginInProgress(true);
-			const token = await magic?.auth.loginWithSMS({ phoneNumber });
+			const token = await magic?.auth.loginWithSMS({
+				phoneNumber: formattedPhoneNumber,
+			});
 			if (token) {
 				saveToken(token, setToken, 'SMS');
 				toast('Login successful!', { type: 'success' });
@@ -59,19 +63,17 @@ export function LoginModal({ open, onOpenChange }: LoginModalProps) {
 					case RPCErrorCode.MagicLinkExpired:
 					case RPCErrorCode.MagicLinkRateLimited:
 					case RPCErrorCode.UserAlreadyLoggedIn:
-						showToast({ message: e.message, type: 'error' });
+						toast(e.message, {
+							type: 'error',
+						});
 						break;
 					default:
-						showToast({
-							message: 'Something went wrong. Please try again.',
+						toast('Something went wrong. Please try again.', {
 							type: 'error',
 						});
 				}
 			} else {
-				showToast({
-					message: 'Unexpected error. Please try again.',
-					type: 'error',
-				});
+				toast('Unexpected error. Please try again.', { type: 'error' });
 			}
 		} finally {
 			setLoginInProgress(false);
