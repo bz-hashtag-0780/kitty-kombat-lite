@@ -53,7 +53,7 @@ export const ShopPage = () => {
 				{enrichedUpgrades.map((upgrade: any) => (
 					<div
 						key={upgrade.id}
-						className="flex items-center bg-gray-900 rounded-lg p-3 cursor-pointer hover:bg-gray-800 transition-colors duration-200 border border-gray-800"
+						className="flex items-center bg-gray-900 rounded-lg p-3 cursor-pointer hover:bg-gray-800 border border-gray-800 transition-all duration-200 active:scale-95"
 						onClick={async (e: any) => {
 							e.stopPropagation(); // Prevents parent containers from capturing the click event
 							setIsUpgrading(upgrade.id);

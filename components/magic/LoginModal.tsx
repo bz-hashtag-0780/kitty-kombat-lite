@@ -18,6 +18,7 @@ import {
 } from '@/components/magic/ui/Dialog';
 import { Input } from '@/components/magic/ui/Input';
 import Spinner from '@/components/magic/ui/Spinner';
+import { toast } from 'react-toastify';
 
 interface LoginModalProps {
 	open: boolean;
@@ -44,7 +45,7 @@ export function LoginModal({ open, onOpenChange }: LoginModalProps) {
 			const token = await magic?.auth.loginWithSMS({ phoneNumber });
 			if (token) {
 				saveToken(token, setToken, 'SMS');
-				showToast({ message: 'Login successful!', type: 'success' });
+				toast('Login successful!', { type: 'success' });
 				setPhoneNumber('');
 				onOpenChange(false);
 				window.location.reload(); // Refresh the page
