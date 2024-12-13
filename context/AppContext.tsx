@@ -425,14 +425,14 @@ export const AppContextProvider = ({ children }: { children: ReactNode }) => {
 
 				if (newCount >= FAILURE_THRESHOLD) {
 					toast.update(id, {
-						render: 'Multiple save failures. Please reconnect wallet.',
+						render: 'Multiple transaction failures. Please reconnect wallet.',
 						type: 'error',
 						isLoading: false,
 						autoClose: 5000,
 					});
 				} else {
 					toast.update(id, {
-						render: 'Failed to save progress',
+						render: 'Failed to transfer flow',
 						type: 'error',
 						isLoading: false,
 						autoClose: 2000,
@@ -518,7 +518,7 @@ export const AppContextProvider = ({ children }: { children: ReactNode }) => {
 			}
 
 			isTransactionInProgressRef.current = true;
-			const id = toast.loading('Saving progress...');
+			const id = toast.loading('Purchasing upgrade...');
 
 			try {
 				const transactionId = await fcl.mutate({
@@ -565,7 +565,7 @@ export const AppContextProvider = ({ children }: { children: ReactNode }) => {
 						// SEALED status
 						console.log('Transaction sealed via subscribe.');
 						toast.update(id, {
-							render: 'Progress saved onchain!',
+							render: 'Upgrade purchased!',
 							type: 'success',
 							isLoading: false,
 							autoClose: 2000,
@@ -593,14 +593,14 @@ export const AppContextProvider = ({ children }: { children: ReactNode }) => {
 
 					if (newCount >= FAILURE_THRESHOLD) {
 						toast.update(id, {
-							render: 'Multiple save failures. Please reconnect wallet.',
+							render: 'Multiple transaction failures. Please reconnect wallet.',
 							type: 'error',
 							isLoading: false,
 							autoClose: 5000,
 						});
 					} else {
 						toast.update(id, {
-							render: 'Failed to save progress',
+							render: 'Failed to purchase upgrade',
 							type: 'error',
 							isLoading: false,
 							autoClose: 2000,
@@ -676,7 +676,7 @@ export const AppContextProvider = ({ children }: { children: ReactNode }) => {
 		}
 
 		isTransactionInProgressRef.current = true;
-		const id = toast.loading('Saving progress...');
+		const id = toast.loading('Claiming coins...');
 
 		try {
 			const transactionId = await fcl.mutate({
@@ -715,7 +715,7 @@ export const AppContextProvider = ({ children }: { children: ReactNode }) => {
 					// SEALED status
 					console.log('Transaction sealed via subscribe.');
 					toast.update(id, {
-						render: 'Progress saved onchain!',
+						render: 'Coins claimed!',
 						type: 'success',
 						isLoading: false,
 						autoClose: 2000,
@@ -751,7 +751,7 @@ export const AppContextProvider = ({ children }: { children: ReactNode }) => {
 					});
 				} else {
 					toast.update(id, {
-						render: 'Failed to save progress',
+						render: 'Failed to claim coins.',
 						type: 'error',
 						isLoading: false,
 						autoClose: 2000,
