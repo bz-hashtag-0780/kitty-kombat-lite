@@ -1,14 +1,14 @@
 'use client';
 
 import React from 'react';
-import { Wallet, ArrowUpRight, Copy } from 'lucide-react';
 import { useAppContext } from '@/context/AppContext';
 import { Button } from '@/components/EarnPage/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/EarnPage/ui/input';
-import { toast } from 'react-toastify';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Wallet, ArrowUpRight, Copy } from 'lucide-react';
 import { LogOutButton } from '@/components/magic/LogOutButton';
-import { LoginButton } from '../magic/LoginButton';
+import { LoginButton } from '@/components/magic/LoginButton';
+import { toast } from 'react-toastify';
 
 export const EarnPage = () => {
 	const {

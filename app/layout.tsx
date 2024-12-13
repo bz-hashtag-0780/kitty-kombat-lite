@@ -1,15 +1,15 @@
 'use client';
 
 import { useEffect } from 'react';
-import './globals.css';
+import * as fcl from '@onflow/fcl';
 import { Header } from '@/components/ui/Header';
 import { Footer } from '@/components/ui/Footer';
 import MagicProvider from '@/context/MagicContext';
 import { AuthContextProvider } from '@/context/AuthContext';
 import { AppContextProvider } from '@/context/AppContext';
-import * as fcl from '@onflow/fcl';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import './globals.css';
 
 fcl.config({
 	'accessNode.api': 'https://rest-mainnet.onflow.org',
