@@ -5,7 +5,7 @@ import { useMagic } from '@/context/MagicContext';
 import { useAuth } from '@/context/AuthContext';
 import { saveToken } from '@/utils/common';
 import { RPCError, RPCErrorCode } from 'magic-sdk';
-import { LoginModalButton } from '@/components/magic/ui/LoginModalButton';
+import { Button } from '@/components/magic/ui/Button';
 import { X } from 'lucide-react';
 import {
 	Dialog,
@@ -115,13 +115,13 @@ export function LoginModal({ open, onOpenChange }: LoginModalProps) {
 							Enter a valid phone number
 						</span>
 					)}
-					<LoginModalButton
+					<Button
 						type="submit"
-						className="w-full"
+						className="w-full bg-black text-white"
 						disabled={isLoginInProgress || phoneNumber.length === 0}
 					>
 						{isLoginInProgress ? <Spinner /> : 'Send Code'}
-					</LoginModalButton>
+					</Button>
 				</form>
 				{token.length > 0 && <LogOutButton />}
 			</DialogContent>
