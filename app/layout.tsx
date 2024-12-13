@@ -1,5 +1,3 @@
-'use client';
-
 import './globals.css';
 import { Header } from '@/components/ui/Header';
 import { Footer } from '@/components/ui/Footer';
@@ -9,7 +7,7 @@ import { AppContextProvider } from '@/context/AppContext';
 import * as fcl from '@onflow/fcl';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import { useEffect } from 'react';
+// import { useEffect } from 'react';
 
 fcl.config({
 	'accessNode.api': 'https://rest-mainnet.onflow.org',
@@ -29,13 +27,13 @@ export default function RootLayout({
 }: Readonly<{
 	children: React.ReactNode;
 }>) {
-	useEffect(() => {
-		const preventDefault = (e: TouchEvent) => e.preventDefault();
-		document.addEventListener('touchmove', preventDefault, {
-			passive: false,
-		});
-		return () => document.removeEventListener('touchmove', preventDefault);
-	}, []);
+	// useEffect(() => {
+	// 	const preventDefault = (e: TouchEvent) => e.preventDefault();
+	// 	document.addEventListener('touchmove', preventDefault, {
+	// 		passive: false,
+	// 	});
+	// 	return () => document.removeEventListener('touchmove', preventDefault);
+	// }, []);
 
 	return (
 		<html lang="en">
