@@ -82,7 +82,7 @@ export function LoginModal({ open, onOpenChange }: LoginModalProps) {
 
 	return (
 		<Dialog open={open} onOpenChange={onOpenChange}>
-			<DialogContent className="sm:max-w-md">
+			<DialogContent className="sm:max-w-md text-black bg-white">
 				<DialogHeader>
 					<DialogTitle>Login to Save Progress</DialogTitle>
 					<DialogDescription>
@@ -108,6 +108,7 @@ export function LoginModal({ open, onOpenChange }: LoginModalProps) {
 							setPhoneNumber(e.target.value);
 						}}
 						required
+						className="text-black bg-white"
 					/>
 					{phoneError && (
 						<span className="self-start text-xs font-semibold text-red-700">

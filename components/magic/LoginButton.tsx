@@ -14,7 +14,7 @@ export function LoginButton({ onClick }: LoginButtonProps) {
 		<Button
 			variant="outline"
 			onClick={onClick}
-			className="p-1 text-primary hover:text-primary border border-primary/20 hover:border-primary/40"
+			className="p-1 text-black bg-white hover:text-primary border border-primary/20 hover:border-primary/40"
 		>
 			<LogIn className="w-4 h-4 mr-2" />
 			{token.length > 0 ? <Spinner /> : 'Login'}
