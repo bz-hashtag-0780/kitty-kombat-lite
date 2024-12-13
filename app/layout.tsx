@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect } from 'react';
+// import { useEffect } from 'react';
 import * as fcl from '@onflow/fcl';
 import { Header } from '@/components/ui/Header';
 import { Footer } from '@/components/ui/Footer';
@@ -20,14 +20,14 @@ export default function RootLayout({
 }: Readonly<{
 	children: React.ReactNode;
 }>) {
-	useEffect(() => {
-		// Set viewport meta tag
-		const meta = document.createElement('meta');
-		meta.name = 'viewport';
-		meta.content =
-			'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no';
-		document.getElementsByTagName('head')[0].appendChild(meta);
-	}, []);
+	// useEffect(() => {
+	// 	// Set viewport meta tag
+	// 	const meta = document.createElement('meta');
+	// 	meta.name = 'viewport';
+	// 	meta.content =
+	// 		'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no';
+	// 	document.getElementsByTagName('head')[0].appendChild(meta);
+	// }, []);
 
 	return (
 		<html lang="en">
