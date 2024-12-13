@@ -10,6 +10,7 @@ import { AppContextProvider } from '@/context/AppContext';
 import * as fcl from '@onflow/fcl';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import Head from 'next/head';
 
 fcl.config({
 	'accessNode.api': 'https://rest-mainnet.onflow.org',
@@ -22,6 +23,12 @@ export default function RootLayout({
 }>) {
 	return (
 		<html lang="en">
+			<Head>
+				<meta
+					name="viewport"
+					content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"
+				/>
+			</Head>
 			<body
 				suppressHydrationWarning={true}
 				className="flex flex-col h-screen overflow-hidden"
