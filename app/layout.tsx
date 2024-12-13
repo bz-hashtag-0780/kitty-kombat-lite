@@ -28,23 +28,23 @@ export default function RootLayout({
 			'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no';
 		document.getElementsByTagName('head')[0].appendChild(meta);
 
-		// Prevent default touch events
-		const preventDefault = (e: Event) => e.preventDefault();
-		document.addEventListener('touchmove', preventDefault, {
-			passive: false,
-		});
+		// // Prevent default touch events
+		// const preventDefault = (e: Event) => e.preventDefault();
+		// document.addEventListener('touchmove', preventDefault, {
+		// 	passive: false,
+		// });
 
-		// Prevent pinch zoom
-		document.addEventListener('gesturestart', preventDefault);
-		document.addEventListener('gesturechange', preventDefault);
-		document.addEventListener('gestureend', preventDefault);
+		// // Prevent pinch zoom
+		// document.addEventListener('gesturestart', preventDefault);
+		// document.addEventListener('gesturechange', preventDefault);
+		// document.addEventListener('gestureend', preventDefault);
 
-		return () => {
-			document.removeEventListener('touchmove', preventDefault);
-			document.removeEventListener('gesturestart', preventDefault);
-			document.removeEventListener('gesturechange', preventDefault);
-			document.removeEventListener('gestureend', preventDefault);
-		};
+		// return () => {
+		// 	document.removeEventListener('touchmove', preventDefault);
+		// 	document.removeEventListener('gesturestart', preventDefault);
+		// 	document.removeEventListener('gesturechange', preventDefault);
+		// 	document.removeEventListener('gestureend', preventDefault);
+		// };
 	}, []);
 
 	return (
