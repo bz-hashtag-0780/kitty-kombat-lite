@@ -19,6 +19,7 @@ import {
 import { Input } from '@/components/magic/ui/Input';
 import Spinner from '@/components/magic/ui/Spinner';
 import { toast } from 'react-toastify';
+import { LogOutButton } from './LogOutButton';
 
 interface LoginModalProps {
 	open: boolean;
@@ -119,6 +120,7 @@ export function LoginModal({ open, onOpenChange }: LoginModalProps) {
 						{isLoginInProgress ? <Spinner /> : 'Send Code'}
 					</LoginModalButton>
 				</form>
+				{token.length > 0 && <LogOutButton />}
 			</DialogContent>
 		</Dialog>
 	);

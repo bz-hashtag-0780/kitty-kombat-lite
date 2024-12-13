@@ -28,7 +28,7 @@ export function LogOutButton() {
 		<Button
 			variant="outline"
 			onClick={disconnect}
-			className="p-1 text-primary hover:text-primary border border-primary/20 hover:border-primary/40"
+			className="p-2 text-primary hover:text-primary border border-primary/20 hover:border-primary/40"
 		>
 			<LogOut className="w-4 h-4 mr-2" />
 			{isLoggingOut ? <Spinner /> : 'Disconnect'}
