@@ -281,12 +281,12 @@ export const AppContextProvider = ({ children }: { children: ReactNode }) => {
 	);
 
 	const saveOnchain = useCallback(async () => {
-		console.log('Syncing with on-chain balance...');
+		// console.log('Syncing with on-chain balance...');
 
 		if (!publicAddress || isTransactionInProgressRef.current) {
-			console.log(
-				'Skipping sync: either no publicAddress or transaction in progress'
-			);
+			// console.log(
+			// 	'Skipping sync: either no publicAddress or transaction in progress'
+			// );
 			return;
 		}
 
@@ -297,9 +297,9 @@ export const AppContextProvider = ({ children }: { children: ReactNode }) => {
 			// Calculate the difference between local and on-chain balance
 			const countDiff =
 				onChainBalance !== undefined ? totalCount - onChainBalance : 0; // Difference to be synchronized
-			console.log('total count:', totalCount);
-			console.log('On-chain count:', onChainBalance);
-			console.log('Count difference (to save):', countDiff);
+			// console.log('total count:', totalCount);
+			// console.log('On-chain count:', onChainBalance);
+			// console.log('Count difference (to save):', countDiff);
 
 			// Perform transaction if there's a difference
 			if (countDiff > 0) {

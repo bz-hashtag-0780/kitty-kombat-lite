@@ -62,8 +62,6 @@ export const PlayPage = () => {
 		const updateClaimTimer = () => {
 			const now = Date.now() / 1000; // Current time in seconds
 			const nextClaimTime = Math.floor(lastClaimTimestamp) + 3600; // 1 hour cooldown
-			console.log('Last claim timestamp:', lastClaimTimestamp);
-			console.log('Next claim time:', nextClaimTime);
 			const timeLeft = Math.max(0, nextClaimTime - now);
 
 			if (timeLeft > 0) {
