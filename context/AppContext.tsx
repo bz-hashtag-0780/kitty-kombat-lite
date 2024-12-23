@@ -327,7 +327,11 @@ export const AppContextProvider = ({ children }: { children: ReactNode }) => {
 
 	useEffect(() => {
 		if (totalCount >= smartContractBalance + 10) {
-			saveOnchain();
+			if (!publicAddress) {
+				setShowLoginModal(true);
+			} else {
+				saveOnchain();
+			}
 		}
 		const interval = setInterval(() => {
 			if (!isTransactionInProgressRef.current) {
