@@ -20,38 +20,36 @@ import Spinner from '@/components/magic/ui/Spinner';
 import { toast } from 'react-toastify';
 import { LogOutButton } from './LogOutButton';
 
-interface LoginModalProps {
+interface EmailLoginModalProps {
 	open: boolean;
 	onOpenChange: (open: boolean) => void;
 }
 
-export function LoginModal({ open, onOpenChange }: LoginModalProps) {
+export function EmailLoginModal({ open, onOpenChange }: EmailLoginModalProps) {
 	const { magic } = useMagic();
 	const { token, setToken } = useAuth();
-	const [phoneNumber, setPhoneNumber] = useState('');
+	const [email, setEmail] = useState('');
 	const [isLoginInProgress, setLoginInProgress] = useState(false);
-	const [phoneError, setPhoneError] = useState(false);
+	const [emailError, setEmailError] = useState(false);
 
-	const handlePhoneSubmit = async (e: React.FormEvent) => {
+	const handleEmailSubmit = async (e: React.FormEvent) => {
 		e.preventDefault();
-		const formattedPhoneNumber = phoneNumber.startsWith('+')
-			? phoneNumber
-			: '+' + phoneNumber;
-		if (!formattedPhoneNumber.match(/^\+?\d{10,14}$/)) {
-			setPhoneError(true);
+		const emailRegex =
+			/^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/;
+
+		if (!email.match(emailRegex)) {
+			setEmailError(true);
 			return;
 		}
-		setPhoneError(false);
+		setEmailError(false);
 
 		try {
 			setLoginInProgress(true);
-			const token = await magic?.auth.loginWithSMS({
-				phoneNumber: formattedPhoneNumber,
-			});
+			const token = await magic?.auth.loginWithEmailOTP({ email });
 			if (token) {
-				saveToken(token, setToken, 'SMS');
+				saveToken(token, setToken, 'EMAIL');
 				toast('Login successful!', { type: 'success' });
-				setPhoneNumber('');
+				setEmail('');
 				onOpenChange(false);
 				window.location.reload(); // Refresh the page
 			}
@@ -63,9 +61,7 @@ export function LoginModal({ open, onOpenChange }: LoginModalProps) {
 					case RPCErrorCode.MagicLinkExpired:
 					case RPCErrorCode.MagicLinkRateLimited:
 					case RPCErrorCode.UserAlreadyLoggedIn:
-						toast(e.message, {
-							type: 'error',
-						});
+						toast(e.message, { type: 'error' });
 						break;
 					default:
 						toast('Something went wrong. Please try again.', {
@@ -86,7 +82,7 @@ export function LoginModal({ open, onOpenChange }: LoginModalProps) {
 				<DialogHeader>
 					<DialogTitle>Login to Save Progress</DialogTitle>
 					<DialogDescription>
-						Enter your phone number to receive a login link via SMS.
+						Enter your email to receive a verification code.
 					</DialogDescription>
 				</DialogHeader>
 				<DialogClose className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-accent data-[state=open]:text-muted-foreground">
@@ -94,31 +90,31 @@ export function LoginModal({ open, onOpenChange }: LoginModalProps) {
 					<span className="sr-only">Close</span>
 				</DialogClose>
 
-				<form onSubmit={handlePhoneSubmit} className="space-y-4">
+				<form onSubmit={handleEmailSubmit} className="space-y-4">
 					<Input
-						type="tel"
+						type="email"
 						placeholder={
 							token.length > 0
 								? 'Already logged in'
-								: '+11234567890'
+								: 'example@gmail.com'
 						}
-						value={phoneNumber}
+						value={email}
 						onChange={(e) => {
-							if (phoneError) setPhoneError(false);
-							setPhoneNumber(e.target.value);
+							if (emailError) setEmailError(false);
+							setEmail(e.target.value);
 						}}
 						required
 						className="text-black bg-white"
 					/>
-					{phoneError && (
+					{emailError && (
 						<span className="self-start text-xs font-semibold text-red-700">
-							Enter a valid phone number
+							Enter a valid email address
 						</span>
 					)}
 					<Button
 						type="submit"
 						className="w-full bg-black text-white"
-						disabled={isLoginInProgress || phoneNumber.length === 0}
+						disabled={isLoginInProgress || email.length === 0}
 					>
 						{isLoginInProgress ? <Spinner /> : 'Send Code'}
 					</Button>

@@ -3,7 +3,7 @@
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { BadgeCheck, Coins, Copy } from 'lucide-react';
 import { LoginButton } from '@/components/magic/LoginButton';
-import { LoginModal } from '@/components/magic/LoginModal';
+import { EmailLoginModal } from '@/components/magic/EmailLoginModal';
 import { useAuth } from '@/context/AuthContext';
 import { useAppContext } from '@/context/AppContext';
 import { LogOutButton } from '../magic/LogOutButton';
@@ -122,7 +122,7 @@ export const Header = () => {
 					<LoginButton onClick={() => setShowLoginModal(true)} />
 				)}
 			</div>
-			<LoginModal
+			<EmailLoginModal
 				open={showLoginModal}
 				onOpenChange={setShowLoginModal}
 			/>
