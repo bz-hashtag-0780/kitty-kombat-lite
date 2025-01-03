@@ -1,19 +1,24 @@
 # Kitty Kombat Lite
 
-View live demo on Telegram: [https://t.me/KittyKombatLiteBot/app/](https://t.me/KittyKombatLiteBot/app/)
+View live demo on Telegram: <a href="https://t.me/KittyKombatLiteBot/app/" target="_blank">https://t.me/KittyKombatLiteBot/app/</a>
 
-<img src="./public/live_demo.jpg" alt="Live Demo" width="300" />
+<img src="./public/live_demo.jpg" alt="Live Demo" width="200" />
 
 ---
 
 # Production Setup Guide
 
+## Follow Video Tutorial
+
+You can follow this video walkthrough on how to setup your onchain Telegram game
+
+ADD VIDEO
+
 ## Prerequisites
 
 1. Create accounts and gather credentials:
-    - [Vercel](https://vercel.com) account for deployment
-    - [Magic.link](https://magic.link) dashboard account
-    - [Flow Wallet](https://wallet.flow.com) mainnet account
+    - <a href="https://vercel.com" target="_blank">Vercel</a> account for deployment
+    - <a href="https://magic.link" target="_blank">Magic.link</a> account for custodial wallets
 
 ## Environment Setup
 
@@ -22,6 +27,36 @@ View live demo on Telegram: [https://t.me/KittyKombatLiteBot/app/](https://t.me/
 ```properties
 NEXT_PUBLIC_MAGIC_API_KEY=your_magic_publishable_key
 ```
+
+## Frontend Deployment on Vercel
+
+1. Visit <a href="https://vercel.com" target="_blank">[Vercel](https://vercel.com)</a> and sign in
+
+2. Add a new project and import your repo
+
+ADD IMAGES
+
+3. Before you click deploy, choose `build and output settings` and add the following custom `install command`
+
+```sh
+npm install --legacy-peer-deps
+```
+
+ADD IMAGE
+
+4. Click on the Deploy button and save your domain URL
+
+ADD IMAGE
+
+## Magic Link Setup
+
+1. Visit <a href="https://magic.link" target="_blank">Magic.link</a> and sign in
+
+2. 
+
+## Telegram Web App Setup
+
+
 
 2. Set up Flow credentials:
     - Create `mainnet-account.pkey` file with your Flow private key
@@ -57,26 +92,6 @@ sh -ci "$(curl -fsSL https://raw.githubusercontent.com/onflow/flow-cli/master/in
 flow project deploy --network mainnet
 ```
 
-## Frontend Deployment
-
-1. Install dependencies:
-
-```sh
-npm install
-```
-
-2. Build the project:
-
-```sh
-npm run build
-```
-
-3. Deploy to Vercel:
-
-```sh
-vercel --prod
-```
-
 ## Security Notes
 
 -   Keep your `mainnet-account.pkey` secure and never commit it to version control
@@ -84,3 +99,17 @@ vercel --prod
 -   Your Magic.link publishable key `NEXT_PUBLIC_MAGIC_API_KEY` is safe to commit
 
 -   Add `.env` to your `.gitignore` file if it's not already there
+
+# Run locally
+
+1. Install dependencies:
+
+```sh
+npm install
+```
+
+2. Run the project:
+
+```sh
+npm run dev
+```
