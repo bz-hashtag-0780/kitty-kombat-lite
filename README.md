@@ -36,7 +36,9 @@ NEXT_PUBLIC_MAGIC_API_KEY=your_magic_publishable_key
 
 2. Add a new project and import your repo
 
-ADD IMAGES
+<img src="./public/image_1.png" alt="Add new project" width="500" />
+
+<img src="./public/image_2.png" alt="Import repo" width="500" />
 
 3. Before you click deploy, choose `build and output settings` and add the following custom `install command`
 
@@ -44,11 +46,11 @@ ADD IMAGES
 npm install --legacy-peer-deps
 ```
 
-ADD IMAGE
+<img src="./public/image_3.png" alt="Import repo" width="500" />
 
 4. Click on the Deploy button and save your domain URL
 
-ADD IMAGE
+<img src="./public/image_4.png" alt="Import repo" width="500" />
 
 ## Magic Link Setup
 
