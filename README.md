@@ -38,17 +38,35 @@ ADD VIDEO
 npm install --legacy-peer-deps
 ```
 
-<img src="./public/image_3.png" alt="Import repo" width="500" />
+<img src="./public/image_3.png" alt="Custom install command" width="500" />
 
 4. Click on the Deploy button and save your domain URL
 
-<img src="./public/image_4.png" alt="Import repo" width="500" />
+<img src="./public/image_4.png" alt="Save domain url" width="500" />
 
 ## Magic Link Setup
 
 1. Visit <a href="https://magic.link" target="_blank">https://magic.link</a> and sign in
 
-2. 
+2. Create a `new app` and enable `email` and `sms` login
+
+<img src="./public/image_10.png" alt="create new app" width="500" />
+
+<img src="./public/image_5.png" alt="enable email and sms login" width="500" />
+
+3. Go to `Settings` and `Add Domain` from your Vercel deployment to `Allowed Origins & Redirects` and press `Save`
+
+<img src="./public/image_6.png" alt="add domain" width="500" />
+
+4. Save your publishable api key and add it to your Vercel `Environment Variables` under your Vercel project's `Settings`. Remember to press `Save`
+
+ <img src="./public/image_7.png" alt="publishable api key" width="500" />
+
+<img src="./public/image_8.png" alt="environment variables" width="500" />
+
+5. Redeploy your latest build to make sure the magic api key environment variable gets added to your app.
+
+<img src="./public/image_9.png" alt="redeploy latest build" width="500" />
 
 ## Telegram Web App Setup
 
