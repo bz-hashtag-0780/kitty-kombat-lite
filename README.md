@@ -22,14 +22,6 @@ ADD VIDEO
     - <a href="https://vercel.com" target="_blank">Vercel</a> account for deployment
     - <a href="https://magic.link" target="_blank">Magic.link</a> account for custodial wallets
 
-## Environment Setup
-
-1. Create a `.env` file in your project root:
-
-```properties
-NEXT_PUBLIC_MAGIC_API_KEY=your_magic_publishable_key
-```
-
 ## Frontend Deployment on Vercel
 
 1. Visit <a href="https://vercel.com" target="_blank">[Vercel](https://vercel.com)</a> and sign in
@@ -104,7 +96,15 @@ flow project deploy --network mainnet
 
 -   Add `.env` to your `.gitignore` file if it's not already there
 
-# Run locally
+## Environment Setup
+
+1. Create a `.env` file in your project root:
+
+```properties
+NEXT_PUBLIC_MAGIC_API_KEY=your_magic_publishable_key
+```
+
+## Run locally
 
 1. Install dependencies:
 
