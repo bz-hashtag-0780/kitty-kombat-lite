@@ -50,7 +50,7 @@ ADD IMAGE
 
 ## Magic Link Setup
 
-1. Visit <a href="https://magic.link" target="_blank">Magic.link</a> and sign in
+1. Visit <a href="https://magic.link" target="_blank">https://magic.link</a> and sign in
 
 2. 
 
