@@ -14,7 +14,7 @@ Deploy your own onchain Telegram game powered by Flow blockchain: [1-Click Start
 
 You can follow this video walkthrough on how to setup your onchain Telegram game
 
-<iframe width="560" height="315" src="https://www.youtube.com/embed/w70ICeVh6fY?si=Ep-qjNTq6APcQZQP" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+[View video](https://youtu.be/w70ICeVh6fY)
 
 ## Prerequisites
 
