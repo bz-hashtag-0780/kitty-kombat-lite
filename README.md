@@ -2,6 +2,8 @@
 
 View live demo on Telegram: <a href="https://t.me/KittyKombatLiteBot/app/" target="_blank">https://t.me/KittyKombatLiteBot/app/</a>
 
+View tutorial: [https://youtu.be/w70ICeVh6fY](https://youtu.be/w70ICeVh6fY)
+
 Deploy your own onchain Telegram game powered by Flow blockchain: [1-Click Starter](https://dapp-deployer.vercel.app/)
 
 <img src="./public/live_demo.jpg" alt="Live Demo" width="200" />
