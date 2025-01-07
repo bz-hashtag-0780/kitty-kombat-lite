@@ -14,7 +14,7 @@ Deploy your own onchain Telegram game powered by Flow blockchain: [1-Click Start
 
 You can follow this video walkthrough on how to setup your onchain Telegram game
 
-ADD VIDEO
+<iframe width="560" height="315" src="https://www.youtube.com/embed/w70ICeVh6fY?si=Ep-qjNTq6APcQZQP" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
 
 ## Prerequisites
 
@@ -60,7 +60,11 @@ npm install --legacy-peer-deps
 
 4. Save your publishable api key and add it to your Vercel `Environment Variables` under your Vercel project's `Settings`. Remember to press `Save`
 
- <img src="./public/image_7.png" alt="publishable api key" width="500" />
+```
+NEXT_PUBLIC_MAGIC_API_KEY
+```
+
+<img src="./public/image_7.png" alt="publishable api key" width="500" />
 
 <img src="./public/image_8.png" alt="environment variables" width="500" />
 
@@ -70,45 +74,33 @@ npm install --legacy-peer-deps
 
 ## Telegram Web App Setup
 
+1. Go to [BotFather on Telegram](https://t.me/BotFather), the official bot for managing Telegram bots and web apps.
 
+2. Create a Telegram Bot
 
-2. Set up Flow credentials:
-    - Create `mainnet-account.pkey` file with your Flow private key
+Use the command 
 
--   View your private key by navigating to: Flow Wallet chrome extension > settings > account list > [account] > private key
--   Update `flow.json` with your mainnet account address
-
-```sh
-{
-  "accounts": {
-    "mainnet-account": {
-      "address": "<YOUR_FLOW_ADDRESS>",
-      "key": {
-        "type": "file",
-        "location": "mainnet-account.pkey"
-      }
-    }
-  }
-}
+```
+/newbot
 ```
 
-## Smart Contract Deployment
+3. Create a Telegram App
 
-1. Install Flow CLI:
+Use the command 
 
-```sh
-sh -ci "$(curl -fsSL https://raw.githubusercontent.com/onflow/flow-cli/master/install.sh)"
+```
+/newapp
 ```
 
-2. Deploy contract to mainnet:
+4. Configure Menu Button
 
-```sh
-flow project deploy --network mainnet
-```
+Use the command `/mybots`, choose your Telegram bot to access `Bot Settings` -> `Menu Button` -> `Configure menu button`, type in your domain URL and enter the text to be displayed on your button (E.g. "Play")
+
+5. Configure Mini App
+
+Go to `Bot Settings` -> `Configure Mini App` -> `Enable Mini App` and type in your domain URL.
 
 ## Security Notes
-
--   Keep your `mainnet-account.pkey` secure and never commit it to version control
 
 -   Your Magic.link publishable key `NEXT_PUBLIC_MAGIC_API_KEY` is safe to commit
 
